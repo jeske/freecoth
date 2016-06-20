@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////
-// Copyright (c) 2001-2002 David Pritchard <drpritch@alumni.uwaterloo.ca>
+// Copyright (c) 2001-2003 David Pritchard <drpritch@alumni.uwaterloo.ca>
 // 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public License
@@ -110,10 +110,13 @@ public:
     UInt8 getData( UInt32 x, UInt32 y, UInt32 component = 0 ) const;
     UInt8& getData( UInt32 x, UInt32 y, UInt32 component = 0 );
 
-    //! Create a new image with padding around the borders.
+    //! Create a new image with padding around the borders. rgb parameters
+    //! specify colour to fill border with.
     RCShdPtr<GfxImage> pad(
         UInt32 padX, UInt32 padY, UInt8 r, UInt8 g, UInt8 b
     ) const;
+    //! Create a new image with padding around the borders. value parameter
+    //! specifies value to fill border with.
     RCShdPtr<GfxImage> pad(
         UInt32 padX, UInt32 padY, UInt8 value
     ) const;
@@ -122,7 +125,7 @@ private:
 
     //----- member functions -----
     // Disallowed. FIXME: allow it.
-    GfxImage& operator = ( const GfxImage& );
+    GfxImage& operator=( const GfxImage& );
 
     //----- data members -----
 

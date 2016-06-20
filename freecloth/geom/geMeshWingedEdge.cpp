@@ -51,13 +51,13 @@ void GeMeshWingedEdge::build( const GeMesh& mesh )
     std::fill(
         _vertexHalfEdgeIds.begin(),
         _vertexHalfEdgeIds.end(),
-        HalfEdge::ID_INVALID
+        static_cast<HalfEdgeId>( HalfEdge::ID_INVALID )
     );
     _faceHalfEdgeIds.resize( mesh.getNbFaces() );
     std::fill(
         _faceHalfEdgeIds.begin(),
         _faceHalfEdgeIds.end(),
-        HalfEdge::ID_INVALID
+        static_cast<HalfEdgeId>( HalfEdge::ID_INVALID )
     );
 
     HalfEdgeId hid;

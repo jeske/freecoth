@@ -40,10 +40,12 @@ FREECLOTH_NAMESPACE_START
 
 SimStepStrategyAdaptive::SimStepStrategyAdaptive(
     const RCShdPtr<Simulator>& simulator,
-    UInt32 frameRate
+    UInt32 frameRate,
+    BaTime::Duration maxTimestep
 ) : BaseClass( simulator ),
     _maxSubSteps( 1500 ),
-    _size( 0 )
+    _size( 0 ),
+    _maxTimestep( maxTimestep )
 {
     _inStep = false;
     setFrameRate( frameRate );
@@ -203,14 +205,15 @@ void SimStepStrategyAdaptive::subStep()
 
 void SimStepStrategyAdaptive::changeStep( Int32 inc )
 {
+    static const Int32 minDenom = 2;
     static const Int32 maxDenom = 6;
     static const Int32 minPow = -3;
-    static const Int32 maxSize = maxDenom - 1;
+    static const Int32 maxSize = maxDenom - minDenom;
     _size = std::min( maxSize, _size + inc );
     if ( _size >= 0 ) {
         // In this regime, the timestep is a constant fraction of the frame
         // period. The size defines the denominator of the fraction.
-        const Int32 denom = maxSize - _size + 1;
+        const Int32 denom = maxSize - _size + minDenom;
         _h = BaTime::floatAsDuration( 1.f/_frameRate ) / denom;
     }
     else {
@@ -220,6 +223,7 @@ void SimStepStrategyAdaptive::changeStep( Int32 inc )
         DGFX_ASSERT( exp < minPow && exp <= 0 );
         _h = BaTime::floatAsDuration( 1.f/_frameRate ) / ( 1 << -exp );
     }
+    _h = std::min( _h, _maxTimestep );
 }
 
 //------------------------------------------------------------------------------
@@ -273,9 +277,28 @@ void SimStepStrategyAdaptive::setFrameRate( UInt32 frameRate )
 
 //------------------------------------------------------------------------------
 
+void SimStepStrategyAdaptive::setMaxTimestep( BaTime::Duration maxTimestep )
+{
+    DGFX_ASSERT( !inStep() );
+    _maxTimestep = maxTimestep;
+    if ( _maxTimestep > 0 ) {
+        _h = std::min( _h, _maxTimestep );
+    }
+    // otherwise, timestep is unlimited
+}
+
+//------------------------------------------------------------------------------
+
 UInt32 SimStepStrategyAdaptive::getFrameRate() const
 {
     return _frameRate;
+}
+
+//------------------------------------------------------------------------------
+
+BaTime::Duration SimStepStrategyAdaptive::getMaxTimestep() const
+{
+    return _maxTimestep;
 }
 
 FREECLOTH_NAMESPACE_END

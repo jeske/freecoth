@@ -143,6 +143,7 @@ private:
         ID_STEP_STRATEGY,
         ID_STEP_TIMESTEP,
         ID_STEP_FRAME_RATE,
+        ID_STEP_MAX,
         ID_STEP_STRETCH_LIMIT,
 
         ID_PAR_K_STRETCH,
@@ -246,10 +247,15 @@ private:
     Float                   _rho;
     Float                   _pcgTolerance;
     UInt32                  _frameRate;
+    Float                   _maxTimestep;
     Float                   _stretchLimit;
     ConstraintType          _constraints;
     bool                    _batchFlag;
     BaTime::Instant         _batchEnd;
+    //! Times of substeps, for debugging
+    std::list<Float>        _subTimes;
+    UInt32                  _nbSubSteps;
+    BaTime::Instant         _subLastTime;
 
     bool _quitFlag;
     bool _rewindFlag;

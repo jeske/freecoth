@@ -32,6 +32,7 @@
 
 template <class T> class GfxImageReaderFactorySimple;
 
+////////////////////////////////////////////////////////////////////////////////
 /*!
  * \class GfxImageReaderPNM freecloth/gfx/gfxImagReaderPNM.h
  * \brief Class to read Portable Anymap Files (bitmaps, greymap, and pixmaps)

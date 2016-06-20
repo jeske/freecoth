@@ -101,7 +101,7 @@ private:
     //----- member functions -----
 
     // Disallowed.
-    GfxConfig& operator = ( const GfxConfig& );
+    GfxConfig& operator=( const GfxConfig& );
 
     //----- data members -----
 

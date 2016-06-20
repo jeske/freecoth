@@ -82,7 +82,7 @@ void wFloats(
 
 //------------------------------------------------------------------------------
 
-#if HAVE_MEMBER_TEMPLATES
+#ifdef HAVE_MEMBER_TEMPLATES
 template <class T>
 void ResConfigRegistryW::writeFloats(
     const String& key,
@@ -97,7 +97,7 @@ void ResConfigRegistryW::writeFloats(
 
 //------------------------------------------------------------------------------
 
-#if HAVE_MEMBER_TEMPLATES
+#ifdef HAVE_MEMBER_TEMPLATES
 template <class T>
 void ResConfigRegistryR::readFloats(
     const String& key,

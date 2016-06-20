@@ -218,8 +218,7 @@ template <class T>
 inline std::ostream& operator<<(
     std::ostream& out,
     const RCProxyShdPtr<T>& ptr
-)
-{
+) {
     if ( ptr.isNull() ) {
         out << "(null)";
     }

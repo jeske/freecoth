@@ -36,6 +36,7 @@ FREECLOTH_NAMESPACE_START
     template <class T> class RCShdPtr;
 FREECLOTH_NAMESPACE_END
 
+////////////////////////////////////////////////////////////////////////////////
 /*!
  * \class GfxImageReader freecloth/gfx/gfxImagReader.h
  * \brief Interface for image reader classes.

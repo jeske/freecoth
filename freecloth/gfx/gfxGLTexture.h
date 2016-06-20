@@ -96,7 +96,7 @@ private:
     //! Disallowed.
     GfxGLTexture( const GfxGLTexture& );
     //! Disallowed.
-    GfxGLTexture& operator = ( const GfxGLTexture& );
+    GfxGLTexture& operator=( const GfxGLTexture& );
 
     //----- data members -----
 

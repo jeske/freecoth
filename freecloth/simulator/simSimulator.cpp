@@ -33,11 +33,12 @@
 // If set, avoid [BarWit98]'s assumption that stretch always keeps the
 // edge lengths to a fixed size. Not very sure that it works...
 #define DO_NORM             0
-// If set, adjust [BarWit98]'s condition functions to be scale invariant
-#define DO_SCALE_INVARIANT  1
 // If set, adjust [BarWit98]'s modified PCG algorithm to use [AscBox03]'s
 // improvements.
 #define DO_ASCHER_BOXERMAN 1
+// If set, stretch limit means *absolute* change in size; if clear,
+// stretch limit means *percent* change in size
+#define STRETCH_LIMIT_ABSOLUTE 1
 
 namespace {
     using namespace freecloth;
@@ -274,7 +275,7 @@ SimSimulator::SimSimulator( const GeMesh& initialMesh )
   : _initialMesh( new GeMesh( initialMesh ) ),
     _rho( .01f ),
     _h( .02f ),
-    _stretchLimit( .03f )
+    _stretchLimit( 5e-5 )
 {
     rewind();
     setupMass();
@@ -592,7 +593,7 @@ void SimSimulator::preSubSteps()
 
     // Now, we're left with a system Ax=b, where x corresponds to deltav
     
-    _modPCG._z = _h * _z0;
+    _modPCG._z = _z0;
     _modPCG._y = _sd._lastDeltaV0;
     _modPCG.preStep();
 }
@@ -959,14 +960,21 @@ void SimSimulator::calcStretchShear(
         verifyStretch( fc, cv, x, v0 );
     }
 
-    // FIXME: keep individual Cu/Cv terms per-triangle. Maybe.
+    // FIXME: should scale by alpha be used?
+    // a) yes - means stretchLimit is relative to triangle size
+    // b) no - means stretchLimit is absolute
+#if STRETCH_LIMIT_ABSOLUTE
+    const Float testScale = 1.f;
+#else
+    const Float testScale = fc._alpha;
+#endif
     if (
         BaMath::abs(
             _savedStepData._Cu[ face.getFaceId() ] - _sd._Cu[ face.getFaceId() ]
-        ) > _stretchLimit ||
+        ) > _stretchLimit * testScale ||
         BaMath::abs(
             _savedStepData._Cv[ face.getFaceId() ] - _sd._Cv[ face.getFaceId() ]
-        ) > _stretchLimit
+        ) > _stretchLimit * testScale
     ) {
         _stepSuccessFlag = false;
     }
@@ -1065,8 +1073,8 @@ void SimSimulator::calcStretch(
     Float E =
         _params._k_stretch * .5 * ( stv._Cu * stv._Cu + stv._Cv * stv._Cv );
     _sd._trienergy[ F_STRETCH ][ face.getFaceId() ] = E;
-    _sd._Cu[ face.getFaceId() ] = stv._Cu / fc._alpha;
-    _sd._Cv[ face.getFaceId() ] = stv._Cv / fc._alpha;
+    _sd._Cu[ face.getFaceId() ] = stv._Cu;
+    _sd._Cv[ face.getFaceId() ] = stv._Cv;
     _sd._fenergy[ F_STRETCH ] += E;
 
     if ( DEBUG_STRETCH ) {
@@ -1759,11 +1767,8 @@ void SimSimulator::FaceConsts::calc( const GePoint_3 tp )
     //          \begin{pmatrix} \du_2 \\ \dv_2 \\ 0 \end{pmatrix} } $
     _alpha = .5 * ( tp[ 1 ] - tp[ 0 ] ).cross( tp[ 2 ] - tp[ 0 ] ).length();
 
-#if DO_SCALE_INVARIANT
-    // _alpha = _alpha ^ 3/4
+    // Correction to [BarWit98]
     _alpha = BaMath::sqrt( _alpha );
-    _alpha = _alpha * BaMath::sqrt( _alpha );
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -2556,14 +2561,16 @@ void SimSimulator::BendVars::calcCderivs()
     for ( m = 0; m < 4; ++m ) {
         _dC_dxm[ m ] = _costh * _dsinth_dxm[ m ] - _sinth * _dcosth_dxm[ m ];
     }
-    // $ \pfractwo{C}{\xms}{\xnt} = \pfractwo{\theta}{\xms}{\xnt} =
-    //      \pfrac{\cos \theta}{\xnt}\pfrac{\sin \theta}{\xms} +
-    //      \cos \theta \pfractwo{\sin \theta}{\xms}{\xnt} -
-    //      \pfrac{\sin \theta}{\xnt} \pfrac{\cos \theta}{\xms} -
-    //      \sin \theta \pfractwo{\cos \theta}{\xms}{\xnt} $
+    // $ \pfractwo{C}{\xms}{\xnt} = \pfractwo{\theta}{\xms}{\xnt}
+    // =  \cos \theta \pfractwo{\sin \theta}{\xms}{\xnt}
+    //  - \sin \theta \pfractwo{\cos \theta}{\xms}{\xnt}
+    //  + (\sin^2 \theta - \cos^2 \theta)
+    //    \left(\pfrac{\sin \theta}{\xms}\pfrac{\cos \theta}{\xnt} +
+    //          \pfrac{\cos \theta}{\xms} \pfrac{\sin \theta}{\xnt}\right)
+    //  + 2 \sin\theta \cos\theta
+    //    \left(\pfrac{\cos \theta}{\xms}\pfrac{\cos \theta}{\xnt} -
+    //          \pfrac{\sin \theta}{\xms} \pfrac{\sin \theta}{\xnt}\right)
     for ( m = 0; m < 4; ++m ) {
-        // FIXME: For some reason, this is a sum of a symmetric (a) and
-        // skew-symmetric (b) matrix. Why?
         for ( n = m; n < 4; ++n ) {
             GeMatrix3& d2C_dxmdxn = _d2C_dxmdxn[m][n];
             GeMatrix3& d2C_dxndxm = _d2C_dxmdxn[n][m];
@@ -2574,10 +2581,16 @@ void SimSimulator::BendVars::calcCderivs()
                     _costh * d2sinth_dxmdxn(t,s)
                     - _sinth * d2costh_dxmdxn(t,s);
                 Float b =
-                    _dcosth_dxm[n][t] * _dsinth_dxm[m][s]
-                    - _dsinth_dxm[n][t] * _dcosth_dxm[m][s];
-                d2C_dxmdxn(t,s) = a + b;
-                d2C_dxndxm(s,t) = a - b;
+                    (_dsinth_dxm[m][s] * _dcosth_dxm[n][t] +
+                     _dcosth_dxm[m][s] * _dsinth_dxm[n][t])
+                        * (_sinth*_sinth - _costh*_costh);
+                Float c = 2*_sinth*_costh * 
+                     ( _dcosth_dxm[m][s] * _dcosth_dxm[n][t]
+                       - _dsinth_dxm[m][s] * _dsinth_dxm[n][t]);
+
+                // Note that all everything above is symmetric in xms and xnt
+                d2C_dxmdxn(t,s) = a + b + c;
+                d2C_dxndxm(s,t) = a + b + c;
             }
         }
     }
@@ -2719,16 +2732,22 @@ void SimSimulator::ModPCGSolver::setupPreconditioner()
     }
     for ( UInt32 i = 0; i < N; ++i ) {
         const GeMatrix3& a = _A( i, i );
-        GeMatrix3& p = _P( i, i );
-        GeMatrix3& pinv = _Pinv( i, i );
-        p = GeMatrix3::zero();
-        pinv = GeMatrix3::zero();
-        for ( UInt32 j = 0; j < 3; ++j ) {
-            DGFX_ASSERT( !BaMath::isEqual( a( j, j ), 0, 10e-12f ) );
-            // This is the inverse of the [BarWit98]'s recommendation...
-            // but makes things work much better. See [AscBox03].
-            p( j, j ) = a( j, j );
-            pinv( j, j ) = 1 / a( j, j );
+        if ( 0 ) {//DO_ASCHER_BOXERMAN ) {
+            _P( i, i ) = a;
+            _Pinv( i, i ) = a.getInverse();
+        }
+        else {
+            GeMatrix3& p = _P( i, i );
+            GeMatrix3& pinv = _Pinv( i, i );
+            p = GeMatrix3::zero();
+            pinv = GeMatrix3::zero();
+            for ( UInt32 j = 0; j < 3; ++j ) {
+                DGFX_ASSERT( !BaMath::isEqual( a( j, j ), 0, 10e-12f ) );
+                // This is the inverse of the [BarWit98]'s recommendation...
+                // but makes things work much better. See [AscBox03].
+                p( j, j ) = a( j, j );
+                pinv( j, j ) = 1 / a( j, j );
+            }
         }
     }
 }

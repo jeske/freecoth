@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////
-// Copyright (c) 2001-2002 David Pritchard <drpritch@alumni.uwaterloo.ca>
+// Copyright (c) 2001-2003 David Pritchard <drpritch@alumni.uwaterloo.ca>
 // 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public License
@@ -102,7 +102,7 @@ public:
 
     //----- member functions -----
     explicit RCShdPtr( T* = 0 );
-    // Copy constructor. Both rhs and this will point to the same data.
+    //! Copy constructor. Both rhs and this will point to the same data.
     RCShdPtr( const RCShdPtr& rhs );
     ~RCShdPtr();
 
@@ -147,13 +147,13 @@ public:
 #endif
 
     bool isNull() const;
-    T& operator* () const;
-    T* operator-> () const;
+    T& operator*() const;
+    T* operator->() const;
     T* get() const;
-    bool operator== ( const RCShdPtr& ) const;
-    bool operator!= ( const RCShdPtr& ) const;
-    bool operator== ( const RCBase* ) const;
-    bool operator!= ( const RCBase* ) const;
+    bool operator==( const RCShdPtr& ) const;
+    bool operator!=( const RCShdPtr& ) const;
+    bool operator==( const RCBase* ) const;
+    bool operator!=( const RCBase* ) const;
 
 private:
 };

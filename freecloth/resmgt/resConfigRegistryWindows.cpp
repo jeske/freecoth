@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////
-// Copyright (c) 2001-2002 David Pritchard <drpritch@alumni.uwaterloo.ca>
+// Copyright (c) 2001-2003 David Pritchard <drpritch@alumni.uwaterloo.ca>
 // 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public License
@@ -22,16 +22,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 // LOCAL DECLARATIONS
 
-FREECLOTH_NAMESPACE_START
+namespace {
     const String BASE_PATH = "Software\\Winamp\\Plugins";
 };
 
-namespace freecloth {
+FREECLOTH_NAMESPACE_START
 
 ////////////////////////////////////////////////////////////////////////////////
 // CLASS ResConfigRegistryW
 
 //------------------------------------------------------------------------------
+
 RCShdPtr<ResConfigRegistryW> ResConfigRegistryW::create(
     const String& groupName
 ) {
@@ -44,6 +45,7 @@ RCShdPtr<ResConfigRegistryW> ResConfigRegistryW::create(
 // CLASS ResConfigRegistryR
 
 //------------------------------------------------------------------------------
+
 RCShdPtr<ResConfigRegistryR> ResConfigRegistryR::create(
     const String& groupName
 ) {

@@ -1,0 +1,48 @@
+/*!
+
+\mainpage Freecloth 0.7.1 API
+
+\section intro Introduction
+
+This manual is aimed at developers using the Freecloth library. More details
+of the internals of Freecloth can be found in the
+<a href="../../internal/html/index.html">Freecloth Internals</a>
+manual, which is an expanded version of this document. The internals manual
+also describes the layers used by the cloth test application.
+
+\section org Organisation
+
+The Freecloth source is divided into layers. Each layer can depend on code in
+layers beneath it, but cannot reference layers above it. This structure helps
+to reduce the dependencies between source files, and to organise the source
+code into general groupings. Classes within each layer have a special prefix.
+
+The individual layers are described below, starting from the lowest layers.
+The layer's prefix is shown in parentheses. All of these layers are contained
+in the freecloth namespace.
+
+- \b base (Ba):
+  the simplest layer, merely defining headers for standard operating system
+  functions (standard input/output, debugging, standard mathematics, strings).
+- \b resmgt (Res, RC):
+  Resource management layer. This layer handles memory management and
+  application configuration.
+  \e Depends: base
+- \b geom (Ge):
+  geometry layer. This layer includes geometric primitives, such as points,
+  vectors, matrices, and triangle meshes.
+  \e Depends: resmgt
+- \b simulator (Sim):
+  cloth simulation layer. This is the top layer of the Freecloth library, and
+  defines the actual cloth simulation engine.
+  \e Depends: geom
+
+The remaining layers in the source distribution are used by the cloth test
+application, and are not required by the simulator.
+
+The best starting point for understanding the use of the Freecloth library
+is the freecloth::SimSimulator class, which draws in the other classes when
+needed. Clients will also need to use the GeMeshBuilder class to construct a
+mesh for input to the simulation.
+
+ */

@@ -112,9 +112,7 @@ public:
 
     //----- member functions -----
 
-    //! Constructor.
     GfxWindow();
-    //! Destructor.
     virtual ~GfxWindow();
 
     virtual UInt32 getWidth() const = 0;

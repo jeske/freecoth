@@ -24,12 +24,14 @@ FREECLOTH_NAMESPACE_START
 // CLASS RCBase
 
 //------------------------------------------------------------------------------
+
 RCBase::RCBase()
     : _rcCount( 0 )
 {
 }
 
 //------------------------------------------------------------------------------
+
 RCBase::RCBase( RCBase const& rhs )
     : _rcCount( 0 )
 {
@@ -38,6 +40,7 @@ RCBase::RCBase( RCBase const& rhs )
 }
 
 //------------------------------------------------------------------------------
+
 RCBase::~RCBase()
 {
     //DGFX_ASSERT( _rcCount == 1 );

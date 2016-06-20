@@ -26,7 +26,7 @@ libresmgt_la_SOURCES =              \
     rcShdPtr.cpp                    \
     resConfigRegistry.cpp           \
     resConfigRegistryFile.cpp       \
-    resConfigRegistry$(PLATFORM).cpp
+    resConfigRegistryUnix.cpp
 
 myincludedir = $(includedir)/freecloth/resmgt
 myinclude_HEADERS =                 \
@@ -40,7 +40,7 @@ myinclude_HEADERS =                 \
     resConfigRegistry.h             \
     resConfigRegistry.imp.h         \
     resConfigRegistryFile.h         \
-    resConfigRegistry$(PLATFORM).h  
+    resConfigRegistryUnix.h  
 
 EXTRA_DIST =                        \
     resConfigRegistryUnix.cpp       \

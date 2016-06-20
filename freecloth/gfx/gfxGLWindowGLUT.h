@@ -121,7 +121,7 @@ private:
     //! Disallowed.
     GfxGLWindowGLUT( const GfxGLWindowGLUT& );
     //! Disallowed.
-    GfxGLWindowGLUT& operator = ( const GfxGLWindowGLUT& );
+    GfxGLWindowGLUT& operator=( const GfxGLWindowGLUT& );
 
     //----- static data members -----
 

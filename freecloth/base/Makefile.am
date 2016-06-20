@@ -20,10 +20,11 @@ include $(top_srcdir)/Makefile.am.include
 
 noinst_LTLIBRARIES = libbase.la
 
+# Should be ${PLATFORM}.. but doesn't work under redhat 9
 libbase_la_SOURCES =                \
     baMath.cpp                      \
     baStringUtil.cpp                \
-    baTime${PLATFORM}.cpp           \
+    baTimeUnix.cpp                  \
     baTraceEntry.cpp                \
     baTraceStream.cpp               
 

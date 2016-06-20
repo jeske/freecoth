@@ -1,0 +1,67 @@
+/*!
+
+\mainpage Freecloth 0.7.1 Internals
+
+\section intro Introduction
+
+This manual is aimed at developers working on the Freecloth project.
+Users of the Freecloth library can refer to the
+<a href="../../public/html/index.html">Freecloth API</a>
+manual, which is a simplified version of this document.
+
+\section org Organisation
+
+The Freecloth source is divided into layers. Each layer can depend on code in
+layers beneath it, but cannot reference layers above it. This structure helps
+to reduce the dependencies between source files, and to organise the source
+code into general groupings. Classes within each layer have a special prefix.
+
+The individual layers are described below, starting from the lowest layers.
+The layer's prefix is shown in parentheses.
+
+\subsection sim Simulation Engine
+
+The actual simulation engine only requires a subset of these layers:
+base, geom, resmgt and simulator. These layers are all enclosed in the
+freecloth namespace. The best starting point for understanding the simulator
+is the SimSimulator class, which draws in other classes
+when needed.
+
+- \b base (Ba):
+  the simplest layer, merely defining headers for standard operating system
+  functions (standard input/output, debugging, standard mathematics, strings).
+- \b resmgt (Res, RC):
+  Resource management layer. This layer handles memory management and
+  application configuration.
+  \e Depends: base
+- \b geom (Ge):
+  geometry layer. This layer includes geometric primitives, such as points,
+  vectors, matrices, and triangle meshes.
+  \e Depends: resmgt
+- \b simulator (Sim):
+  cloth simulation layer. This is the top layer of the Freecloth library, and
+  defines the actual cloth simulation engine.
+  \e Depends: geom
+
+
+\subsection clothApp Cloth Application
+
+The cloth test application needs GLUT for a windowing system, OpenGL for
+rendering the cloth, and the core Freecloth library for simulation. These
+classes are not enclosed in a namsepace. The best starting point for
+understanding the cloth application is the ClothApp class.
+
+- \b colour (Col):
+  colour management layer. This is a very simple layer, currently only defining
+  RGB colours.
+  \e Depends: base
+- \b gfx (Gfx):
+  graphics layer. This layer handles window management, image storage and
+  reading/writing, user interface via GLUI, and OpenGL interaction.
+  \e Depends: geom, colour
+- \b clothApp:
+  Cloth test application. This is the test application used to demonstrate the
+  capabilities of the Freecloth library.
+  \e Depends: gfx, simulator
+
+ */

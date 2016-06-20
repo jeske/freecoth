@@ -5,4 +5,5 @@ Developers' TODO list
 
 
 - Unix: fix test app to link against so
+- Unix: test new autoconf changes on a few systems.
 - Win32: add DLL build

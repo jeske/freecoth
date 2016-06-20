@@ -1,0 +1,15 @@
+# Fix underlines on images
+$DVIPSOPT = ' -E';
+# Force white background for figures
+$LATEX_COLOR = "\\pagecolor{white}";
+$WHITE_BACKGROUND = 1;
+# Make local copy of icon images
+$LOCAL_ICONS = 1;
+# Force lower case tags
+$LOWER_CASE_TAGS = 1;
+# Force numbered footnotes
+$NUMBERED_FOOTNOTES = 1;
+# Use proper unicode quote marks, not `` and ''
+$USE_CURLY_QUOTES = 1; 
+
+return true;

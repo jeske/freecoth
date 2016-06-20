@@ -141,12 +141,12 @@ public:
         // MSVC bug requires this to be inline
         // Maya values: .5, .35, .01 (unknown scaling...)
         inline Params()
-          : _k_stretch( 5000.f ),
-            _k_shear( 500.f ),
-            _k_bend_u( .00001f ),
-            _k_bend_v( .00001f ),
-            _k_stretch_damp( 1000.f ),
-            _k_shear_damp( 100.f ),
+          : _k_stretch( 100.f ),
+            _k_shear( 10.f ),
+            _k_bend_u( 1e-5f ),
+            _k_bend_v( 1e-5f ),
+            _k_stretch_damp( 20.f ),
+            _k_shear_damp( 2.f ),
             _k_bend_damp( 2e-6f ),
             _k_drag( .1f ),
             _b_u( 1.f ),

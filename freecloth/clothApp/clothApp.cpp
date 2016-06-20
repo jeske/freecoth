@@ -64,6 +64,7 @@ public:
     Float _pcgTolerance;
     bool _adaptive;
     UInt32 _frameRate;
+    Float _maxTimestep;
     Float _stretchLimit;
     ClothApp::ConstraintType _constraint;
     bool _batchFlag;
@@ -92,7 +93,8 @@ ClothAppArgs::ClothAppArgs( int argc, const char** argv )
     _pcgTolerance( DEFAULT_PCG_TOLERANCE ),
     _adaptive( true ),
     _frameRate( 25 ),
-    _stretchLimit( 0.01f ),
+    _maxTimestep( 0.f ),
+    _stretchLimit( 5e-5 ),
     _constraint( ClothApp::CON_CORNERS3b ),
     _batchFlag( false ),
     _crop( false )
@@ -125,8 +127,9 @@ void ClothAppArgs::printSyntax()
         << "    -tolerance x       Tolerance of PCG algorithm" << std::endl
         << "    -noAdaptive        Disable adaptive timestepping" << std::endl
         << "    -timestep x        Timestep (nonadaptive only)" << std::endl
-        << "    -stretchLimit x    Stretch limit" << std::endl
         << "    -frameRate x       Framerate for adaptive stepping" << std::endl
+        << "    -maxTimestep x     Maximum timestep during adaptive stepping" << std::endl
+        << "    -stretchLimit x    Stretch limit" << std::endl
         << "    -constraint [none|centre|corners{4,3a,3b,1c,1d}|yank|table_square|" << std::endl
         << "        table_circle]  Constraint type" << std::endl
         << "    -batch t           Run and record movie, exiting when time t is reached" << std::endl
@@ -174,11 +177,11 @@ void ClothAppArgs::parseArgs( InputIterator first, InputIterator last )
         }
         else if ( std::string( "-stretch" ) == *i ) {
             ++i; if ( i == last ) { _error = true; break; }
-            _params._k_stretch = BaStringUtil::toFloat( *i ) * 1000;
+            _params._k_stretch = BaStringUtil::toFloat( *i );
         }
         else if ( std::string( "-shear" ) == *i ) {
             ++i; if ( i == last ) { _error = true; break; }
-            _params._k_shear = BaStringUtil::toFloat( *i ) * 1000;
+            _params._k_shear = BaStringUtil::toFloat( *i );
         }
         else if ( std::string( "-bend" ) == *i ) {
             ++i; if ( i == last ) { _error = true; break; }
@@ -196,7 +199,7 @@ void ClothAppArgs::parseArgs( InputIterator first, InputIterator last )
         }
         else if ( std::string( "-bendDamp" ) == *i ) {
             ++i; if ( i == last ) { _error = true; break; }
-            _params._k_bend_damp = BaStringUtil::toFloat( *i );
+            _params._k_bend_damp = BaStringUtil::toFloat( *i ) / 1000;
         }
         else if ( std::string( "-drag" ) == *i ) {
             ++i; if ( i == last ) { _error = true; break; }
@@ -221,13 +224,17 @@ void ClothAppArgs::parseArgs( InputIterator first, InputIterator last )
             ++i; if ( i == last ) { _error = true; break; }
             _h = BaStringUtil::toFloat( *i );
         }
-        else if ( std::string( "-stretchLimit" ) == *i ) {
-            ++i; if ( i == last ) { _error = true; break; }
-            _stretchLimit = BaStringUtil::toFloat( *i );
-        }
         else if ( std::string( "-frameRate" ) == *i ) {
             ++i; if ( i == last ) { _error = true; break; }
             _frameRate = BaStringUtil::toInt32( *i );
+        }
+        else if ( std::string( "-maxTimestep" ) == *i ) {
+            ++i; if ( i == last ) { _error = true; break; }
+            _maxTimestep = BaStringUtil::toFloat( *i );
+        }
+        else if ( std::string( "-stretchLimit" ) == *i ) {
+            ++i; if ( i == last ) { _error = true; break; }
+            _stretchLimit = BaStringUtil::toFloat( *i );
         }
         else if ( std::string( "-constraint" ) == *i ) {
             ++i; if ( i == last ) { _error = true; break; }
@@ -382,6 +389,7 @@ ClothApp::ClothApp( const ClothAppArgs& args )
     _rho( args._rho ),
     _pcgTolerance( args._pcgTolerance ),
     _frameRate( args._frameRate ),
+    _maxTimestep( args._maxTimestep ),
     _stretchLimit( args._stretchLimit ),
     _constraints( args._constraint ),
     _batchFlag( args._batchFlag ),
@@ -453,6 +461,7 @@ ClothApp::ClothApp( const ClothAppArgs& args )
         std::ofstream( ( _statsPrefix + "stretch-tris.txt" ).c_str() );
         std::ofstream( ( _statsPrefix + "shear-tris.txt" ).c_str() );
         std::ofstream( ( _statsPrefix + "bend-tris.txt" ).c_str() );
+        std::ofstream( ( _statsPrefix + "step.txt" ).c_str() );
     }
 }
 
@@ -562,14 +571,22 @@ void ClothApp::setupStepper()
             );
             _glWindow->enable( ID_STEP_TIMESTEP );
             _glWindow->disable( ID_STEP_FRAME_RATE );
+            _glWindow->disable( ID_STEP_MAX );
             _glWindow->disable( ID_STEP_STRETCH_LIMIT );
         } break;
         case STEP_ADAPTIVE: {
             _stepper = RCShdPtr<SimStepStrategy>(
-                new SimStepStrategyAdaptive( _simulator, _frameRate )
+                new SimStepStrategyAdaptive(
+                    _simulator,
+                    _frameRate,
+                    BaTime::floatAsDuration(
+                        _glWindow->getEditFloat( ID_STEP_MAX )
+                    )
+                )
             );
             _glWindow->disable( ID_STEP_TIMESTEP );
             _glWindow->enable( ID_STEP_FRAME_RATE );
+            _glWindow->enable( ID_STEP_MAX );
             _glWindow->enable( ID_STEP_STRETCH_LIMIT );
         } break;
     }
@@ -707,17 +724,20 @@ void ClothApp::setupWindow( const GfxConfig& config )
     _glWindow->setRadioGroup( ID_STEP_STRATEGY, STEP_ADAPTIVE );
     _glWindow->addEditFloat( "Timestep: ", ID_STEP_TIMESTEP, PANEL_STEP );
     _glWindow->setEditFloat( ID_STEP_TIMESTEP, _h );
-    _glWindow->addEditFloat( "Framerate: ", ID_STEP_FRAME_RATE, PANEL_STEP );
+    _glWindow->addEditInt( "Framerate: ", ID_STEP_FRAME_RATE, PANEL_STEP );
     _glWindow->setEditInt( ID_STEP_FRAME_RATE, _frameRate );
     _glWindow->setEditIntLimits( ID_STEP_FRAME_RATE, 1, 1000 );
+    _glWindow->addEditFloat( "Max timestep: ", ID_STEP_MAX, PANEL_STEP );
+    _glWindow->setEditFloat( ID_STEP_MAX, _maxTimestep );
+    _glWindow->setEditFloatLimits( ID_STEP_MAX, 0, 1 );
     _glWindow->addEditFloat(
         "Stretch limit: ", ID_STEP_STRETCH_LIMIT, PANEL_STEP
     );
     _glWindow->setEditFloat( ID_STEP_STRETCH_LIMIT, _stretchLimit );
 
     _glWindow->addRollout( "Parameters", PANEL_PARAMS, false );
-    _glWindow->addEditFloat( "k_stretch (k)", ID_PAR_K_STRETCH, PANEL_PARAMS );
-    _glWindow->addEditFloat( "k_shear (k)", ID_PAR_K_SHEAR, PANEL_PARAMS );
+    _glWindow->addEditFloat( "k_stretch", ID_PAR_K_STRETCH, PANEL_PARAMS );
+    _glWindow->addEditFloat( "k_shear", ID_PAR_K_SHEAR, PANEL_PARAMS );
     _glWindow->addEditFloat( "k_bend_u (m)", ID_PAR_K_BEND_U, PANEL_PARAMS );
     _glWindow->addEditFloat( "k_bend_v (m)", ID_PAR_K_BEND_V, PANEL_PARAMS );
     _glWindow->addEditFloat(
@@ -727,7 +747,7 @@ void ClothApp::setupWindow( const GfxConfig& config )
         "k_shear_damp", ID_PAR_K_SHEAR_DAMP, PANEL_PARAMS
     );
     _glWindow->addEditFloat(
-        "k_bend_damp", ID_PAR_K_BEND_DAMP, PANEL_PARAMS
+        "k_bend_damp (m)", ID_PAR_K_BEND_DAMP, PANEL_PARAMS
     );
     _glWindow->addEditFloat( "k_drag", ID_PAR_K_DRAG, PANEL_PARAMS );
     _glWindow->addEditFloat( "b_u", ID_PAR_B_U, PANEL_PARAMS );
@@ -815,13 +835,13 @@ void ClothApp::setupWindow( const GfxConfig& config )
 
 void ClothApp::updateParamsUI()
 {
-    _glWindow->setEditFloat( ID_PAR_K_STRETCH, _params._k_stretch / 1000.f );
-    _glWindow->setEditFloat( ID_PAR_K_SHEAR, _params._k_shear / 1000.f );
+    _glWindow->setEditFloat( ID_PAR_K_STRETCH, _params._k_stretch );
+    _glWindow->setEditFloat( ID_PAR_K_SHEAR, _params._k_shear );
     _glWindow->setEditFloat( ID_PAR_K_BEND_U, _params._k_bend_u * 1000.f );
     _glWindow->setEditFloat( ID_PAR_K_BEND_V, _params._k_bend_v * 1000.f );
     _glWindow->setEditFloat( ID_PAR_K_STRETCH_DAMP, _params._k_stretch_damp );
     _glWindow->setEditFloat( ID_PAR_K_SHEAR_DAMP, _params._k_shear_damp );
-    _glWindow->setEditFloat( ID_PAR_K_BEND_DAMP, _params._k_bend_damp );
+    _glWindow->setEditFloat( ID_PAR_K_BEND_DAMP, _params._k_bend_damp * 1000.f );
     _glWindow->setEditFloat( ID_PAR_K_DRAG, _params._k_drag );
     _glWindow->setEditFloat( ID_PAR_B_U, _params._b_u );
     _glWindow->setEditFloat( ID_PAR_B_V, _params._b_v );
@@ -932,13 +952,13 @@ void ClothApp::uiReceived( GfxWindow&, UInt32 uid )
         } break;
 
         case ID_PAR_K_STRETCH: {
-            _params._k_stretch = _glWindow->getEditFloat( uid ) * 1000.f;
+            _params._k_stretch = _glWindow->getEditFloat( uid );
             forceFinishStep();
             _simulator->setParams( _params );
         } break;
 
         case ID_PAR_K_SHEAR: {
-            _params._k_shear = _glWindow->getEditFloat( uid ) * 1000.f;
+            _params._k_shear = _glWindow->getEditFloat( uid );
             forceFinishStep();
             _simulator->setParams( _params );
         } break;
@@ -966,7 +986,7 @@ void ClothApp::uiReceived( GfxWindow&, UInt32 uid )
             _simulator->setParams( _params );
         } break;
         case ID_PAR_K_BEND_DAMP: {
-            _params._k_bend_damp = _glWindow->getEditFloat( uid );
+            _params._k_bend_damp = _glWindow->getEditFloat( uid ) / 1000.f;
             forceFinishStep();
             _simulator->setParams( _params );
         } break;
@@ -1089,9 +1109,9 @@ void ClothApp::idleReceived()
         _nbPendingSteps = 0;
         _stopFlag = false;
     }
+    bool startStep = false;
     if ( _nbPendingSteps > 0 && !_stepper->inStep() ) {
-        _stepper->preSubSteps();
-        _subStepFlag = true;
+        startStep = true;
         --_nbPendingSteps;
     }
     if ( _freeRunFlag ) {
@@ -1105,12 +1125,24 @@ void ClothApp::idleReceived()
                 _quitFlag = true;
             }
             else {
-                _stepper->preSubSteps();
-                _subStepFlag = true;
+                startStep = true;
             }
         }
     }
+    if ( startStep ) {
+        _stepper->preSubSteps();
+        _subTimes.clear();
+        _subLastTime = ~0;
+        _subStepFlag = true;
+        _nbSubSteps = 0;
+    }
     if ( _subStepFlag ) {
+        if ( _simulator->getTime() != _subLastTime ) {
+            _subTimes.push_back(
+                BaTime::instantAsSeconds( _simulator->getTime() )
+            );
+            _subLastTime = _simulator->getTime();
+        }
         if ( _stepper->subStepsDone() ) {
             _stepper->postSubSteps();
             _subStepFlag = false;
@@ -1124,6 +1156,7 @@ void ClothApp::idleReceived()
         }
         else {
             _stepper->subStep();
+            ++_nbSubSteps;
         }
     }
 
@@ -1401,6 +1434,8 @@ void ClothApp::renderClothTriDebug(
                     ) + 8) / 4
                     : 0.f;
                 en[ i ] = std::max( 0.f, std::min( 1.f, en[ i ] ) );
+                // Can square or cube energy to get less logarithmic behaviour.
+                //en[ i ] = en[ i ] * en[ i ];
             }
 
             ::glColor3f( en[0], en[1], en[2] );
@@ -1453,7 +1488,7 @@ void ClothApp::renderClothVertDebug()
     };
 
     // Scale factors
-    const Float SF = 4.f, SV = .2f;
+    const Float SF = .4f, SV = .2f;
     GeMesh::VertexConstIterator vi;
     GeMesh::VertexId vid = 0;
 
@@ -1691,6 +1726,19 @@ void ClothApp::saveStats()
     sttout << std::endl;
     shtout << std::endl;
     btout << std::endl;
+
+    std::ofstream stepout(
+        ( _statsPrefix + "step.txt" ).c_str(), std::ios::app
+    );
+    Float total = 0;
+    std::list<Float>::const_iterator i = _subTimes.begin();;
+    Float last = *i; 
+    for ( ++i; i != _subTimes.end(); ++i ) {
+        total += (*i - last);
+        last = *i;
+    }
+    //total += (BaTime::instantAsSeconds( _simulator->getTime() ) - last);
+    stepout << total / _subTimes.size() << " " << _nbSubSteps << std::endl;
 }
 
 //------------------------------------------------------------------------------

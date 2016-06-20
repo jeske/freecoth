@@ -1,0 +1,910 @@
+\documentclass[twocolumn]{article}
+\newcommand{\onecolumnonly}[1]{}
+\newcommand{\twocolumnonly}[1]{#1}
+
+%\documentclass{article}
+%\newcommand{\onecolumnonly}[1]{#1}
+%\newcommand{\twocolumnonly}[1]{}
+
+\usepackage{amsmath,amsthm}
+\usepackage{graphicx}
+\usepackage{html}
+
+\newcommand{\twocolbreak}{\twocolumnonly{\notag \\}}
+\newcommand{\twocolbreakal}{\twocolumnonly{\notag \\&}}
+
+\newcommand{\sinc}{\operatorname{sinc}}
+\newcommand{\LOG}{\operatorname{LOG}}
+\newcommand{\slerp}{\operatorname{slerp}}
+
+\newcommand{\intinf}{\int_{-\infty}^\infty}
+\newcommand{\abs}[1]{\lvert#1\rvert}
+\newcommand{\norm}[1]{\begin{Vmatrix}#1\end{Vmatrix}}
+
+
+% Setup from simSimulator.cpp
+\newcommand{\pfrac}[2]{
+    \frac{\partial #1}{\partial #2}
+}
+\newcommand{\pfractwo}[3]{
+    \frac{\partial^2 #1}{\partial #2 \partial #3}
+}
+\newcommand{\cross}{\times}
+\newcommand{\I}{{\bf I}}
+\newcommand{\Is}{{\bf I}_s}
+\newcommand{\x}{{\bf x}}
+\newcommand{\xm}{\x_m}
+\newcommand{\xms}{\x_{m_s}}
+\newcommand{\xmx}{\x_{m_x}}
+\newcommand{\xmy}{\x_{m_y}}
+\newcommand{\xmz}{\x_{m_z}}
+\newcommand{\xn}{\x_n}
+\newcommand{\xnt}{\x_{n_t}}
+\newcommand{\xnx}{\x_{n_x}}
+\newcommand{\xny}{\x_{n_y}}
+\newcommand{\xnz}{\x_{n_z}}
+\newcommand{\du}{\Delta u}
+\newcommand{\dv}{\Delta v}
+\newcommand{\C}{{\bf C}}
+\newcommand{\Cu}{C_u}
+\newcommand{\Cv}{C_v}
+\newcommand{\w}{{\bf w}}
+\newcommand{\what}{{\bf {\hat w}}}
+\newcommand{\wu}{\w_u}
+\newcommand{\wus}{\w_{u_s}}
+\newcommand{\wut}{\w_{u_t}}
+\newcommand{\wux}{\w_{u_x}}
+\newcommand{\whatu}{\what_u}
+\newcommand{\whatus}{\what_{u_s}}
+\newcommand{\whatut}{\what_{u_t}}
+\newcommand{\whatux}{\what_{u_x}}
+\newcommand{\wv}{\w_v}
+\newcommand{\wvs}{\w_{v_s}}
+\newcommand{\wvt}{\w_{v_t}}
+\newcommand{\wvx}{\w_{v_x}}
+\newcommand{\whatv}{\what_v}
+\newcommand{\whatvs}{\what_{v_s}}
+\newcommand{\whatvt}{\what_{v_t}}
+\newcommand{\whatvx}{\what_{v_x}}
+\newcommand{\n}{{\bf n}}
+\newcommand{\nhat}{{\bf {\hat n}}}
+\newcommand{\e}{{\bf e}}
+\newcommand{\ehat}{{\bf {\hat e}}}
+\newcommand{\q}{{\bf q}}
+\newcommand{\z}{{\bf z}}
+
+
+\title{Implementing Baraff \& Witkin's Cloth Simulation}
+\author{David Pritchard}
+\date{May 2003, with minor updates April 2012}
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+In April 2002, I implemented a cloth simulator based on Baraff \& Witkin's
+paper \cite{baraff98} for a graduate animation course taught by Michiel van
+de Panne at the University of British Columbia. I later released that
+simulator as an open-source project called Freecloth. Over the following year,
+I improved the performance of the simulator and fixed some major bugs.
+
+The initial version of Freecloth had some major bugs, and did not implement
+all parts of the original paper. Newer versions have eliminated the bugs in
+the simulator, but do not yet include all parts of the original paper.
+
+I will assume that you are familiar with Baraff \& Witkin's
+paper, and I will not try to re-explain concepts which are clearly presented
+there. For my own work, I relied heavily upon a paper by Dean Macri
+\cite{macri00}, who attempted to interpret and implement Baraff \& Witkin's
+paper. I will make reference to Macri's notation and some of his formulas,
+but his paper is not necessary reading. I rederived all of the formulas found
+in Macri's paper, and verified my derivation against Macri's. Initially, I
+found a few minor typographical errors in his paper, but my formulas were
+generally the same.
+
+As my implementation progressed, I found more major errors in Macri's paper.
+The largest error occurred when he calculated the derivatives of the bend
+condition. I give a corrected version of this equation in \eqref{eq:dCdx2} and
+\eqref{eq:d2Cdxmdxn}.
+
+In this paper, I will attempt to explain obstacles that I encountered while
+implementing Baraff \& Witkin's paper.
+
+\section{Notation}
+
+In this paper, I will use the symbol $\I$ to denote an identity matrix. The
+symbol $\Is$ refers to a vector containing the $s$th column of the identity
+matrix. To
+denote the skew-symmetric matrix form of a vector cross product, I will use
+the notation
+
+\[ S({\bf v}) = \begin{pmatrix}
+    0 & -{\bf v}_z & {\bf v}_y \\
+    {\bf v}_z & 0 & -{\bf v}_x \\
+    -{\bf v}_y & {\bf v}_x & 0
+    \end{pmatrix} \]
+
+I will also define the vector $S_s({\bf v})$ as the transpose of the 
+$s$th {\it row} of $S({\bf v})$. $S_s$ is a column vector, but represents
+a row in the original $S$ matrix.
+I will use a hat (e.g. $\whatu$) to refer to a normalised vector of unit
+length, and omit the hat (e.g. $\wu$) for an unnormalised vector. This is
+the opposite convention to that used in my original project report.
+
+I will retain Baraff \& Witkin's notation and use $\x$ to refer to the
+positions of points, not ${\bf p}$ as in Macri's paper. Furthermore,
+I will refer to the points of a triangle as $\x_0$, $\x_1$ and $\x_2$, and
+not use the $i$, $j$ and $k$ subscripts used by the other two papers. For
+the points of an edge, I will likewise use subscripts of 0, 1, 2, and 3 rather
+than the $h$, $i$, $j$ and $k$ subscripts used by Macri.
+
+When referring to points, I will use $\xm$ and $\xn$ to refer to two
+possibly distinct points. I will use the subscript $m_s$ to refer to the
+to the $s$th component of $\xm$, and likewise the subscript $n_t$ for
+the $t$th component of $\xn$. I will also sometimes use subsubscripts of $x$,
+$y$ and $z$ to refer to the components.
+
+I like to think of the derivatives in this paper in terms of their
+components. Both Baraff \& Witkin and Macri differentiate with
+respect to a vector in their papers, giving quantities like
+
+\begin{align*}
+    \pfrac{C}{\xm} &= \begin{pmatrix}
+        \pfrac{C}{\xmx} \\ \pfrac{C}{\xmy} \\ \pfrac{C}{\xmz}
+    \end{pmatrix}
+\end{align*}
+or
+\begin{align*}
+    \pfrac{{\bf v}}{\xm} &= \begin{pmatrix}
+        \pfrac{{\bf v}_x}{\xmx} & \pfrac{{\bf v}_y}{\xmx} &
+            \pfrac{{\bf v}_z}{\xmx} \\
+        \pfrac{{\bf v}_x}{\xmy} & \pfrac{{\bf v}_y}{\xmy} &
+            \pfrac{{\bf v}_z}{\xmy} \\
+        \pfrac{{\bf v}_x}{\xmz} & \pfrac{{\bf v}_y}{\xmz} &
+            \pfrac{{\bf v}_z}{\xmz}
+    \end{pmatrix}
+\end{align*}
+
+This type of formula is common in some areas of graphics; for example, the
+Jacobian matrix has this form. However, what happens when we take the second
+derivative of ${\bf v}$? It will yield a third-order tensor, a
+$3\times3\times3$ linear algebraic quantity. However, this is unnecessarily
+complicated, especially for people (like me) who never covered tensors in
+their undergraduate education. In this paper, I will try to avoid
+differentiation with respect to a vector. Instead, I will do most of the work
+on a component-by-component basis, using only differentiation with respect to
+a scalar. Using this approach, I will only ever need to use vectors and
+scalars, not matrices or higher-order tensors. This makes operations such as
+cross-products and dot-products straightforward.
+
+Some of Baraff \& Witkin's formulas involve taking a second derivative with
+respect to two vectors. For these, just remember the layout of the resulting
+matrix. For example,
+
+\begin{align*}
+    \pfractwo{C}{\xm}{\xn} &= \begin{pmatrix}
+        \pfrac{C}{\xmx}{\xnx} & \pfrac{C}{\xmy}{\xnx} & \pfrac{C}{\xmz}{\xnx} \\
+        \pfrac{C}{\xmx}{\xny} & \pfrac{C}{\xmy}{\xny} & \pfrac{C}{\xmz}{\xny} \\
+        \pfrac{C}{\xmx}{\xnz} & \pfrac{C}{\xmy}{\xnz} & \pfrac{C}{\xmz}{\xnz}
+    \end{pmatrix}
+\end{align*}
+
+\section{Condition Functions}
+
+Baraff \& Witkin used condition functions as an indirect way of defining
+energy and forces. Their condition functions are almost the same as energy
+formulas, since $E=\frac{k}{2}{\bf C}^T{\bf C}$, where ${\bf C}$ is the
+condition function. For the scalar condition functions (shear and bend),
+$E=\frac{k}{2}C^2$, and the condition function is hence basically just the
+squart-root of the energy, except that it can be positive or negative.
+
+The condition functions were defined explicitly in the paper. Energy
+and forces can also be easily calculated, if the derivatives of the condition
+functions are known. However, the paper didn't provide explicit equations for
+the derivatives or second derivatives.
+
+Macri made a good attempt at deriving the equations for the derivatives
+and second derivatives. I found two major shortcomings in his approach, however.
+First, he made reference to tensors and other mathematical constructs that
+aren't really necessary for the derivation. Second, I found an error in his
+derivation for the bend condition.
+
+\subsection{Per-Triangle Quantities}
+
+To begin, I will define a few quantities that will help with explanation of
+the stretch and shear conditions. These quantities are defined for a triangle
+using points $\x_0$, $\x_1$, and $\x_2$. The triangle's area in $u$/$v$ space
+is given by
+
+\begin{align}
+a &= \frac{1}{2} \norm{
+       \begin{pmatrix} \du_1 \\ \dv_1 \\ 0 \end{pmatrix} \cross
+       \begin{pmatrix} \du_2 \\ \dv_2 \\ 0 \end{pmatrix} }
+\end{align}
+
+The $\whatu$ and $\whatv$ vectors represent the directions of the $u$ and $v$
+axes in world space, as seen within a single triangle. They are defined by
+
+\begin{align}
+\whatu &= \frac{ \wu }{\norm {\wu}} &
+%
+\whatv &= \frac{ \wv }{\norm {\wv}}
+\end{align}
+\begin{align}
+\wu &= \frac{ (\x_1 - \x_0) \dv_2 - (\x_2 - \x_0) \dv_1}
+    {\du_1 \dv_2 - \du_2 \dv_1} \\
+%
+\wv &= \frac{ -(\x_1 - \x_0) \du_2 + (\x_2 - \x_0) \du_1}
+   {\du_1 \dv_2 - \du_2 \dv_1}
+\end{align}
+
+The first derivatives of the unnormalised vectors $\wu$ and $\wv$ are
+given by
+
+\begin{align}
+%
+\pfrac{\wu}{\x_m} &= \pfrac{\wux}{\x_{m_x}} \I \\
+%
+\pfrac{\wux}{\x_{0_x}} &= \frac{\dv_1 - \dv_2}{\du_1\dv_2 - \du_2\dv_1} \\
+%
+\pfrac{\wux}{\x_{1_x}} &= \frac{\dv_2}{\du_1\dv_2 - \du_2\dv_1} \\
+%
+\pfrac{\wux}{\x_{2_x}} &= \frac{-\dv_1}{\du_1\dv_2 - \du_2\dv_1}
+\end{align}
+\begin{align}
+%
+\pfrac{\wv}{\x_m} &= \pfrac{\wvx}{\x_{m_x}} \I \\
+%
+\pfrac{\wvx}{\x_{0_x}} &= \frac{\du_2 - \du_1}{\du_1\dv_2 - \du_2\dv_1} \\
+%
+\pfrac{\wvx}{\x_{1_x}} &= \frac{-\du_2}{\du_1\dv_2 - \du_2\dv_1} \\
+%
+\pfrac{\wvx}{\x_{2_x}} &= \frac{\du_1}{\du_1\dv_2 - \du_2\dv_1}
+\end{align}
+
+The second derivatives of $\wu$ and $\wv$ are all zero.
+
+\subsection{Stretch Condition}
+
+Baraff \& Witkin define the stretch condition function as a vector $\C$.
+Two special parameters are defined for stretch, $b_u$ and $b_v$. These
+represent the desired stretchiness of the cloth in the $u$ and $v$ directions.
+A $b_u$ value below one will result in the cloth trying to compress in the $u$
+direction, while a $b_u$ value above one will result in the cloth trying to
+stretch in the $u$ direction.
+
+\begin{align}
+%
+\C = \begin{pmatrix} \Cu \\ \Cv \end{pmatrix} = &\alpha \begin{pmatrix}
+       \norm{\wu} - b_u \\
+       \norm{\wv} - b_v
+   \end{pmatrix}
+\end{align}
+
+Baraff \& Witkin defined $\alpha=a$, the area of the triangle. We define
+$\alpha=a^\frac{3}{4}$, for reasons described later.
+
+The first and second derivatives of the stretch condition function are
+
+\begin{align}
+\pfrac{\Cu}{\xm} &= \alpha \pfrac{\wux}{\xmx} \whatu \\
+%
+\pfractwo{\Cu}{\xm}{\xn} &=
+   \frac{\alpha}{\norm{\wu}}
+   \pfrac{\wux}{\xmx} \pfrac{\wux}{\xnx}
+   \left( \I - \whatu \whatu^T \right) \\
+%
+\pfrac{\Cv}{\xm} &= \alpha \pfrac{\wvx}{\xmx} \whatv \\
+%
+\pfractwo{\Cv}{\xm}{\xn} &=
+   \frac{\alpha}{\norm{\wv}}
+   \pfrac{\wvx}{\xmx} \pfrac{\wvx}{\xnx}
+   \left( \I - \whatv \whatv^T \right)
+\end{align}
+
+These second derivatives exhibit some symmetry, since
+$\pfractwo{\Cu}{\xms}{\xnt} = \pfractwo{\Cu}{\xnt}{\xms}$.
+Consequently, the $3\times3$ matrix
+$\pfractwo{\Cu}{\xm}{\xn} = \pfractwo{\Cu}{\xn}{\xm}^T$.
+To avoid any tensors when applying Baraff \& Witkin's equation (8) to the
+shear equations, remember that
+
+\begin{align}
+\pfractwo{\C(\x)}{\xm}{\xn}\C(\x)
+&=  \pfractwo{\Cu}{\xm}{\xn}\Cu + \pfractwo{\Cv}{\xm}{\xn}\Cv
+\end{align}
+
+\subsection{Shear Condition}
+
+Baraff \& Witkin define the shear condition function as a scalar. This
+scalar is essentially the dot product of the $u$ axis with the $v$ axis in
+world space. If no shear is occurring, the axes are perpendicular and the
+condition function is zero. If shear is occurring, the condition function is
+equivalent to the cosine of the angle between them, weighted by the triangle's
+area in $u$ / $v$ space.
+
+\begin{align}
+\label{eq:shear}
+C &= \alpha \wu \cdot \wv
+\end{align}
+
+Baraff \& Witkin's condition assumes that $\wu$ and $\wv$ are approximately
+unit vectors. If $b_u$ and $b_v$ are both equal to one, then this approximation
+is a fair one. If, however, $b_u$ or $b_v$ are not equal to one, the
+approximation may give rise to some strange behaviour. I have not had a chance
+to investigate the effects of varying $b_u$ or $b_v$.
+
+Since we know the derivatives of $\wu$ and $\wv$, taking the derivative of
+this condition function is trivial.
+
+\begin{align}
+%
+\pfrac{C}{\xms}
+&=  \alpha \left(
+        \pfrac{\wu}{\xms} \cdot \wv + \wu \cdot \pfrac{\wv}{\xms}
+    \right) \\
+&=  \alpha \left(
+        \pfrac{\wux}{\xmx} \wvs + \wus \pfrac{\wvx}{\xmx}
+    \right)
+\end{align}
+\begin{align}
+\pfractwo{C}{\xms}{\xnt} \twocolbreak
+=& \,\alpha \biggl(
+\pfractwo{\wu}{\xms}{\xnt} \cdot \wv + 
+   \pfrac{\wu}{\xms} \cdot \pfrac{\wv}{\xnt} + \notag \\&
+   \pfrac{\wu}{\xnt} \cdot \pfrac{\wv}{\xms} +
+   \wu \cdot \pfractwo{\wu}{\xms}{\xnt} \biggr)
+\\
+% FIXME: first case should be bigger...
+=&
+\begin{latexonly}
+    \begin{cases}
+        \alpha \left(
+           \pfrac{\wux}{\xmx} \pfrac{\wvx}{\xnx} +
+           \pfrac{\wux}{\xnx} \pfrac{\wvx}{\xmx}
+        \right) & \text{if $s=t$,} \\
+        {\bf 0} & \text{otherwise.}
+    \end{cases}
+\end{latexonly}
+%\begin{htmlonly}
+%    \alpha \left(
+%        \pfrac{\wux}{\xmx} \pfrac{\wvx}{\xnx} +
+%        \pfrac{\wux}{\xnx} \pfrac{\wvx}{\xmx}
+%    \right) & \text{if $s=t$, ${\bf 0}$ otherwise}
+%\end{htmlonly}
+\end{align}
+
+These second derivatives exhibit even more symmetry than the stretch
+condition. Like the stretch condition,
+$\pfractwo{C}{\xm}{\xn} = \pfractwo{C}{\xn}{\xm}^T$ but beyond that, the
+$\pfractwo{C}{\xm}{\xn}$ is actually just an identity matrix multiplied by a
+scalar.
+
+\subsection{Bend Condition}
+
+Baraff \& Witkin define the bend condition in terms of two adjoining triangles.
+I have labelled the unit normals of these triangles as $\nhat^A$ and $\nhat^B$,
+rather than Baraff \& Witkin's $\n_1$ or $\n_2$.  The unit vector
+parallel to their common edge is labelled $\ehat$.  Quantities associated with
+the normals or the common edge receive a superscript $A$, $B$ or $e$.
+
+\begin{align}
+%
+\nhat^A &= \frac{\n^A}{\norm{\n^A}} &
+%
+\nhat^B &= \frac{\n^B}{\norm{\n^B}} &
+%
+\ehat &= \frac{\e}{\norm{\e}}
+\end{align}
+\begin{align}
+\n^A &= (\x_2 - \x_0) \cross (\x_1 - \x_0) \\
+%
+\n^B &= (\x_1 - \x_3) \cross (\x_2 - \x_3) \\
+%
+\e &= \x_1 - \x_2
+\end{align}
+
+The scalar bend condition $C$ is defined quite simply as the angle between
+the two edges, $\theta$.
+
+\begin{align}
+\label{eq:costh}
+\cos \theta &= \nhat^A \cdot \nhat^B \\
+\label{eq:sinth}
+\sin \theta &= (\nhat^A \cross \nhat^B) \cdot \ehat \\
+\label{eq:theta}
+C = \theta &= \arctan \frac{\sin \theta}{\cos \theta}
+\end{align}
+
+Macri defined $C$ using the $\arccos$ function, which is incorrect and will
+only yield positive values for $\theta$. My definition of $C$ will yield
+both positive and negative values if implemented using the {\tt atan2} function.
+
+In order to find the derivatives of $C$, we need the derivatives
+of the quantities seen so far. The first and second derivatives of
+$\n^A$, $\n^B$ and $\e$ are shown below, using auxiliary variables
+$\q_m$. The derivatives of $\q_m$ are straightforward to derive.
+
+\begin{align}
+\pfrac{\n^A}{\xms} &= S_s(\q^A_m) \\
+\pfrac{\n^B}{\xms} &= S_s(\q^B_m) \\
+\pfrac{\e}{\xms} &= q^e_m \Is
+\end{align}
+\begin{align}
+% FIXME: this q notation is terrible
+\q^A &= \{ \x_2 - \x_1, \x_0 - \x_2, \x_1 - \x_0, {\bf 0} \} \\
+\q^B &= \{ {\bf 0}, \x_2 - \x_3, \x_3 - \x_1, \x_1 - \x_2 \} \\
+q^e &= \{ 0, 1, -1, 0 \}
+\end{align}
+\begin{align}
+\pfractwo{\n^A}{\xms}{\xnt} &= S_s\left(\pfrac{\q^A_m}{\xnt}\right) \\
+\pfractwo{\n^B}{\xms}{\xnt} &= S_s\left(\pfrac{\q^B_m}{\xnt}\right) \\
+\pfractwo{\e}{\xms}{\xnt} &= {\bf 0}
+% FIXME: include dq
+\end{align}
+
+Using Baraff \& Witkin's assumption that the normal and edge vectors have
+constant magnitude,
+
+\begin{align}
+\label{eq:dn}
+\pfrac{\nhat^A}{\xms} &=
+    \frac{1}{\norm{\n^A}} \pfrac{\n^A}{\xms} \\
+\pfrac{\nhat^B}{\xms} &=
+    \frac{1}{\norm{\n^B}} \pfrac{\n^B}{\xms} \\
+\pfrac{\ehat}{\xms} &=
+    \frac{1}{\norm{\e}} \pfrac{\e}{\xms}
+\end{align}
+\begin{align}
+\label{eq:d2n}
+\pfractwo{\nhat^A}{\xms}{\xnt} &=
+    \frac{1}{\norm{\n^A}} \pfractwo{\n^A}{\xms}{\xnt} \\
+\pfrac{\nhat^B}{\xms}{\xnt} &=
+    \frac{1}{\norm{\n^B}} \pfractwo{\n^B}{\xms}{\xnt} \\
+\pfractwo{\ehat}{\xms}{\xnt} &= {\bf 0}
+\end{align}
+
+Given the derivatives of the normal and edge vectors, the first and second
+derivatives of $\cos \theta$ and $\sin \theta$ are trivial to calculate.
+
+\begin{align}
+\pfrac{ \cos \theta }{\xms} =&
+\pfrac{ \nhat^A \cdot \nhat^B }{\xms} \\
+=&
+   \pfrac{\nhat^A}{\xms} \cdot \nhat^B +
+   \nhat^A \cdot \pfrac{\nhat^B}{\xms}
+\end{align}
+\begin{align}
+\pfrac{ \sin \theta }{\xms} =&
+\pfrac{ (\nhat^A \cross \nhat^B) \cdot \ehat}{\xms} \\
+=&
+   \left(
+       \pfrac{\nhat^A}{\xms} \cross \nhat^B +
+       \nhat^A \cross \pfrac{\nhat^B}{\xms}
+   \right) \cdot \ehat \twocolbreakal +
+   (\nhat^A \cross \nhat^B) \cdot \pfrac{\ehat}{\xms}
+\end{align}
+
+\begin{align}
+\pfractwo{\cos \theta}{\xms}{\xnt} =&
+   \pfractwo{\nhat^A}{\xms}{\xnt} \cdot \nhat^B + 
+   \pfrac{\nhat^B}{\xnt} \cdot \pfrac{\nhat^A}{\xms} \twocolbreakal +
+   \pfrac{\nhat^A}{\xnt} \cdot \pfrac{\nhat^B}{\xms} + 
+   \nhat^A \cdot \pfractwo{\nhat^B}{\xms}{\xnt}
+\end{align}
+
+\begin{align}
+%
+\pfractwo{\sin \theta}{\xms}{\xnt} \twocolbreak =&
+   \bigg(
+       \pfractwo{\nhat^A}{\xms}{\xnt} \cross \nhat^B +
+       \pfrac{\nhat^A}{\xms} \cross \pfrac{\nhat^B}{\xnt} \notag \\& +
+       \pfrac{\nhat^A}{\xnt} \cross \pfrac{\nhat^B}{\xms} +
+       \nhat^A \cross \pfractwo{\nhat^B}{\xms}{\xnt}
+   \bigg) \cdot \ehat    \notag\\& +
+   \left(
+       \pfrac{\nhat^A}{\xms} \cross \nhat^B +
+       \nhat^A \cross \pfrac{\nhat^B}{\xms}
+   \right) \cdot \pfrac{\ehat}{\xnt} \notag \\&+
+   \left(
+       \pfrac{\nhat^A}{\xnt} \cross \nhat^B +
+       \nhat^A \cross \pfrac{\nhat^B}{\xnt}
+   \right) \cdot \pfrac{\ehat}{\xms} \notag \\& +
+   (\nhat^A \cross \nhat^B) \pfractwo{\ehat}{\xms}{\xnt}
+\end{align}
+
+Finally, we can differentiate equation \eqref{eq:theta} to obtain the
+derivatives of $C$.
+
+\begin{align}
+\pfrac{C}{\xms} =& \pfrac{\theta}{\xms} \\
+\label{eq:dCdx1}
+=& \frac{1}{\sin^2 \theta + \cos^2 \theta} \twocolbreakal
+   \times \left(\cos \theta \pfrac{\sin \theta}{\xms} -
+                \sin \theta \pfrac{\cos \theta}{\xms}\right) \\
+\label{eq:dCdx2}
+=& \cos \theta \pfrac{\sin \theta}{\xms} -
+   \sin \theta \pfrac{\cos \theta}{\xms}
+\end{align}
+Note that the second derivative formula below starts from \eqref{eq:dCdx1},
+including the denominator term.
+
+\begin{align}
+&\pfractwo{C}{\xms}{\xnt} = \pfractwo{\theta}{\xms}{\xnt} \\
+&= \frac{1}{(\sin^2 \theta + \cos^2 \theta)^2} \twocolbreakal
+  \times \Bigg[
+    (\sin^2 \theta + \cos^2 \theta)
+    \bigg(\cos \theta \pfractwo{\sin \theta}{\xms}{\xnt} \twocolbreakal
+          - \sin \theta \pfractwo{\cos \theta}{\xms}{\xnt}\bigg) \twocolbreakal
+    + (\sin^2 \theta - \cos^2 \theta)
+      \left(\pfrac{\sin \theta}{\xms}\pfrac{\cos \theta}{\xnt} +
+       \pfrac{\cos \theta}{\xms} \pfrac{\sin \theta}{\xnt}\right) \twocolbreakal
+    + 2 \sin\theta \cos\theta
+      \left(\pfrac{\cos \theta}{\xms}\pfrac{\cos \theta}{\xnt} -
+       \pfrac{\sin \theta}{\xms} \pfrac{\sin \theta}{\xnt}\right)
+  \Bigg] \\
+\label{eq:d2Cdxmdxn}
+&= \cos \theta \pfractwo{\sin \theta}{\xms}{\xnt}
+          - \sin \theta \pfractwo{\cos \theta}{\xms}{\xnt} \twocolbreakal
+    + (\sin^2 \theta - \cos^2 \theta)
+      \left(\pfrac{\sin \theta}{\xms}\pfrac{\cos \theta}{\xnt} +
+       \pfrac{\cos \theta}{\xms} \pfrac{\sin \theta}{\xnt}\right) \twocolbreakal
+    + 2 \sin\theta \cos\theta
+      \left(\pfrac{\cos \theta}{\xms}\pfrac{\cos \theta}{\xnt} -
+       \pfrac{\sin \theta}{\xms} \pfrac{\sin \theta}{\xnt}\right)
+\end{align}
+
+In a manner similar to the stretch condition,
+$\pfractwo{C}{\xms}{\xnt} = \pfractwo{C}{\xnt}{\xms}$ and the $3\times3$
+matrix is symmetric. The 
+second derivatives of $\cos\theta$ and $\sin\theta$ are likewise symmetric.
+
+\section{Verification}
+
+Macri didn't describe any way of verifying the correctness of his derivations
+or implementation. Once I had initially implemented the simulator, I found
+bugs but had no way of determining where an error was occurring. To address
+this, I used numeric derivatives.
+
+For example, suppose that we need to verify the calculation of
+$\pfrac{f(x)}{x}$. Our program calculates the derivative using an analytic
+formula, which we'll call $f'_a(x)$. The derivative can also be calculated
+numerically:
+\[ f'_n(x) = \frac{f(x+h)-f(x)}{h} \]
+If $f'_a(x) = f'_n(x)$, then the implementation and analytic formula give the
+correct results.
+
+Verification is a little bit trickier for the bend condition. Here, we can't
+just use a normal derivative, since we have to differentiate under the
+assumption that the vectors have constant magnitude. Suppose that we want
+to verify the derivative $\pfrac{\nhat^A}{\xms}$. Let $\n^A(\xms)$ represent
+the normal with point $m$ at position $\xms$, and $\n^A(\xms + h\Is)$
+represent the normal once point $m$'s $s$th component is shifted by $h$.
+The unit normals are then given by
+\begin{align*}
+\nhat^A(\xms) &= \frac{\n^A(\xms)}{\norm{\n^A(\xms)}} \\
+\nhat^A(\xms + h\Is) &= \frac{\n^A(\xms + h\Is)}{\norm{\n^A(\xms)}}
+\end{align*}
+And the numeric derivative is given by
+\begin{align*}
+\left({\nhat^{A}}_n\right)' &= \frac{\nhat^A(\xms + h\Is) - \nhat^A(\xms)}{h}
+\end{align*}
+The main trick is to normalise the shifted edge and normal vectors using the
+magnitude of the unshifted vector.
+
+To be honest, I don't know why numeric derivatives can't be used for everything.
+I suspect that they may be less robust than analytic derivatives, and there
+may be a performance tradeoff involved, but I haven't confirmed these
+suspicions. %In my tests, numeric derivatives gave the correct results throughout
+%an entire simulation.
+
+\section{Discussion}
+
+\subsection{Macri's Error}
+
+Equations \eqref{eq:dCdx2} and \eqref{eq:d2Cdxmdxn} are very different
+from the equations obtained by Macri. Macri differentiated equations
+\eqref{eq:costh} and \eqref{eq:sinth}
+and then rearranged to obtain two different formulas for $\pfrac{C}{\xm}$:
+
+\begin{align*}
+\pfrac{C}{\xm} &=
+   -\frac{1}{\sin \theta}
+   \pfrac{\cos \theta}{\xm} \\
+\intertext{and}
+\pfrac{C}{\xm} &=
+   \frac{1}{\cos \theta}
+   \pfrac{\sin \theta}{\xm}
+\end{align*}
+
+Likewise, Macri obtained two different formulas for $\pfractwo{C}{\xm}{\xn}$.
+Macri suggested choosing the first set of equations if
+$\abs{\sin \theta} > \abs{\cos \theta}$. The rationale
+for this choice is presumably to avoid numerical problems and division by zero
+when $\sin \theta=0$. In order for the transition from one regime to the other
+to be smooth, they should be equal at some changeover point. However, it is
+not evident that there exists any changeover point where the two formulas are
+equal. Additionally, neither of these equations matches
+the numeric derivative of $C$. My equations, however, give a result
+identical to the numeric derivative.
+
+Macri's approach fails because he doesn't consider the transition between
+his two bend formulas. My approach succeeds in these cases because it relies
+on a single formula for all bend angles, instead of switching between
+formulas at critical bend points.
+
+I derived equation \eqref{eq:dCdx2} by the following logic. Define
+$y=\frac{\sin\theta}{\cos \theta}$, and $\theta = \arctan y$. Then, $\pfrac{\theta}{\xms}=\cos^2\theta\pfrac{y}{\xms}$. Differentiating $y$, we obtain 
+\[ \pfrac{y}{\xms}=\frac{\cos\theta\pfrac{\sin\theta}{\xms}-\sin\theta\pfrac{\cos\theta}{\xms}}{\cos^2\theta} \]
+and thus,
+\[\pfrac{\theta}{\xms} = \cos\theta\pfrac{\sin\theta}{\xms}-\sin\theta\pfrac{\cos\theta}{\xms} \]
+The derivation of \eqref{eq:d2Cdxmdxn} follows directly from differentation of
+this equation. In some ways, this definition feels a little circular due to
+the introduction of the artifical $\arctan$ term. I believe that the
+derivation is nevertheless correct. One area of serious concern, however, is
+the fact that the second derivative does not exhibit typical symmetry:
+$\pfractwo{\theta}{\xms}{\xnt} \neq \pfractwo{\theta}{\xnt}{\xms}$ in general.
+
+\subsection{Baraff \& Witkin's Errors}
+
+I believe that there is a very small error in equation (14) of Baraff \&
+Witkin's paper: the $\z$ term should be scaled by $h$.
+
+There is an error in their definition of $\pfrac{C}{t}$, just above equation
+(11). They define it as
+\[ \pfrac{\bf C}{t} = \left(\pfrac{\bf C}{\x}\right)^T \pfrac{\x}{t} \]
+However, the condition function ${\bf C}$ is a function of the position of
+several particles ${\bf x}$, and the paper does not specify which particle to
+choose. For my early implementations, I defined a different $\pfrac{\bf C}{t}$
+for each particle, using
+\[ \pfrac{{\bf C}_m}{t} = \left(\pfrac{\bf C}{\xm}\right)^T \pfrac{\xm}{t}. \]
+However, this yielded incorrect results, especially when calculating the
+damping forces for the bend condition, resulting in frequent instability.
+Later, I realised that correct application of the chain rule should yield
+a single $\pfrac{\bf C}{t}$ for all particles, of the form
+\begin{align}
+\pfrac{\bf C}{t} = \sum_m\left(\pfrac{\bf C}{\xm}\right)^T \pfrac{\xm}{t}.
+\end{align}
+The sum should be over the particles that influence ${\bf C}$. Visually, this
+yields vastly better results.
+
+The final error in their paper is related to scale-invariance. Ideally, the
+parameters used for the simulation should be independent of the tesselation of
+the surface. For example, if you run the simulation with a $10\times10$
+mesh and a $20\times20$ mesh and the same parameters, it should look
+basically the same. However, using Baraff \& Witkin's choice of $\alpha=a$,
+this does not occur. I looked at the math for the specific case where the
+number of particles is doubled in $u$ and $v$ (e.g., from $10\times10$ to
+$20\times20$). In this case, the gravity force on each original particle
+decreases by a factor of four (since the mass of the surrounding triangles
+decreases by four). However, the (strong) stretch and shear forces decrease by
+a factor of eight. These forces are responsible for most of the resistance
+against gravity, and consequently the cloth sags substantially as the particle
+density is increased.
+
+However, by using $\alpha=a^\frac{3}{4}$, the stretch and shear forces also
+decrease by a factor of four, as expected. The formula is not as intuitively
+obvious as $\alpha=a$, and I have not done tests with irregularly triangulated
+meshes, but it does work much better for regularly triangulated meshes.
+
+\subsection{Unit Magnitude Approximation}
+
+During my original development, I chased down one wrong alley while looking for
+the error in my (and Macri's) derivations. I was highly suspicious of one
+of Baraff \& Witkin's approximations, where they assume that vectors'
+magnitudes are constant. This occurs in both the shear condition derivation and
+the bend condition derivation. I went through and rederived all of the formulas
+without this assumption, and obtained the formulas given in the appendix.
+After all of this work, there was still a problem, which proved to be the
+error in Macri's versions of equations \eqref{eq:dCdx2} and \eqref{eq:d2Cdxmdxn}.
+
+After finding this error in Macri's work, I returned to the unit magnitude
+issue. I compared the results of my simulation using the formulas given in
+the body of the paper (using Baraff \& Witkin's approximation) to the results
+using the formulas given in the appendix (without the approximation). In my
+test case, I found that the approximation gave more pleasing results! In total,
+stretch energy was halved, and shear and bend energy dropped by a small amount.
+The formulas for both stretch and bend energy are unchanged between the two
+cases, so this is a valid comparison of the energy in the cloth. The formula
+for shear energy is slightly changed by removing the unit magnitude
+approximation, however, so comparisons of energy aren't very meaningful.
+
+To be honest, I was surprised that such a drastic change to the formulas had
+a relatively small effect on the final result. I suspect that there may be a
+lot of room for optimisation of Baraff \& Witkin's system, achieving comparable
+results at less computational cost.
+
+In the interests of presenting a direct implementation of Baraff \& Witkin's
+paper, and on the basis of the better results, I have therefore presented
+the formulas with the constant magnitude approximation.
+
+\subsection{Parameters}
+
+For parameters, I adopted values that gave good results. I looked at
+Alias $|$ Wavefront's {\it Maya} cloth software, but I suspect that they scale
+their parameters internally by an unknown amount. For damping forces, I
+multiplied the associated regular force's constant by the damping constant
+(e.g. $k_{stretch} k_{damp}$ was used to damp stretch forces).
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline 
+{\bf Name} & {\bf Symbol} & {\bf Value} \\
+\hline
+Stretch force strength & $k_{stretch}$ & $5.0 \times 10^3$ \\
+Shear force strength & $k_{shear}$ & $0.5 \times 10^3$ \\
+Bend force strength ($u$) & $k_{bend_u}$ & $0.01 \times 10^{-3}$ \\
+Bend force strength ($v$) & $k_{bend_v}$ & $0.01 \times 10^{-3}$ \\
+Damping force strength & $k_{damp}$ & 0.2 \\
+Rest stretch ($u$) & $b_u$ & 1 \\
+Rest stretch ($v$) & $b_v$ & 1 \\
+Time step & $h$ & 0.02 \\
+Density & $\rho$ & 0.1 \\
+Gravity & $g$ & 9.81 \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Parameters used for simulation.}
+\end{table}
+
+\section{Results}
+
+To test out the simulator, I used a variety of cloth sizes and constraints.
+These can be seen at the Freecloth website
+\url{http://davidpritchard.org/freecloth},
+in the screenshots section.
+
+The simulator's performance is reasonable, with a $66\times66$ cloth typically
+requiring about thirty to forty minutes of computation per second of animation
+on a 3 GHz Pentium IV system using a step size of $0.02$. Smaller cloth sizes
+are much faster, and there is still a fair bit of room for optimisation,
+especially in terms of adaptive timesteps.
+
+My implementation does exhibit some instability, but almost always works with
+a step size of 0.01 seconds; sometimes, a smaller stepsize is needed.
+
+\section{Conclusion}
+
+Baraff \& Witkin's paper does indeed provide a solid framework for cloth
+simulation. It appears to allow relatively large timesteps, and with suitable
+optimisation should run quite quickly.
+
+Hopefully, this paper should clear up some of the confusions of both Macri's
+paper, and the original paper.
+Implementing Baraff \& Witkin's paper should be straightforward using the
+equations shown here.
+
+\section{Acknowledgement}
+
+This work was supported in part by a scholarship from the Natural Sciences
+and Engineering Research Council of Canada, and by the British Columbia
+Advanced Systems Institute.
+
+Thanks to Sebastian Lipponer for pointing out a correction to the bend
+condition formulas.
+
+\bibliography{report}
+\bibliographystyle{alpha}
+
+\clearpage
+
+\appendix
+\numberwithin{equation}{section}
+\section{Appendix}
+
+The equations given in this appendix are replacements for certain equations
+given in the body of the paper. By using these, several of Baraff \& Witkin's
+approximations are avoided. However, my tests show that the results are
+less pleasing.
+
+\subsection{Per-Triangle Quantities}
+The first and second derivatives of the normalised vectors $\whatu$ and
+$\whatv$ are
+
+\begin{align}
+\pfrac{\whatu}{\xms} &=
+   \frac{1}{\norm{\wu}}
+   \pfrac{\wux}{\xmx} \left( \Is - \whatus \whatu \right) \\
+%
+\pfrac{\whatv}{\xms} &=
+   \frac{1}{\norm{\wv}}
+   \pfrac{\wvx}{\xmx} \left( \Is - \whatvs \whatv \right)
+\end{align}
+
+\begin{align}
+\pfractwo{\whatu}{\xms}{\xnt} =&
+   -\frac{1}{\norm{\wu}} \pfrac{\wux}{\xmx} \left(
+       \whatus \pfrac{\whatu}{\xnt} + \pfrac{\whatus}{\xnt} \whatu
+   \right) \notag \\&-
+   \pfrac{\wux}{\xmx} \pfrac{\wux}{\xnx}
+   \frac{( \Is - \whatus \whatu ) \whatut}{\norm{\wu}^2} \\
+%
+\pfractwo{\whatv}{\xms}{\xnt} =&
+   -\frac{1}{\norm{\wv}} \pfrac{\wvx}{\xmx} \left(
+       \whatvs \pfrac{\whatv}{\xnt} + \pfrac{\whatvs}{\xnt} \whatv
+   \right) \notag \\&-
+   \pfrac{\wvx}{\xmx} \pfrac{\wvx}{\xnx}
+   \frac{( \Is - \whatvs \whatv ) \whatvt}{\norm{\wv}^2}
+\end{align}
+
+\subsection{Shear Condition}
+
+If we remove the assumption that the $\whatu$ and $\whatv$ vectors are
+unstretched, then equation \eqref{eq:shear} should be replaced with
+\begin{align}
+C &= \alpha \whatu \cdot \whatv
+\end{align}
+
+\begin{align}
+%
+\pfrac{C}{\xms} =& \alpha \left(
+   \pfrac{\whatu}{\xms} \cdot \whatv + \whatu \cdot \pfrac{\whatv}{\xms}
+\right) \\
+%
+\pfractwo{C}{\xms}{\xnt} =& \alpha \bigg(
+   \pfractwo{\whatu}{\xms}{\xnt} \cdot \whatv +
+   \pfrac{\whatu}{\xms} \cdot \pfrac{\whatv}{\xnt} \notag \\&+
+   \pfrac{\whatu}{\xnt} \cdot \pfrac{\whatv}{\xms} +
+   \whatu \cdot \pfractwo{\whatu}{\xms}{\xnt} \biggr)
+\end{align}
+
+
+
+\subsection{Bend Condition}
+
+If we remove the assumption that the normal and edge vectors have constant
+length, we must replace equations \eqref{eq:dn} and \eqref{eq:d2n} with
+those shown below.
+
+\begin{align}
+\pfrac{\nhat^A}{\xms} &= \left(\I - \nhat^A(\nhat^A)^T\right)
+   \frac{ S_s( \q^A_m ) }{ \norm{\n^A} } \\
+%
+\pfrac{\nhat^B}{\xms} &= \left(\I - \nhat^B(\nhat^B)^T\right)
+   \frac{ S_s( \q^B_m ) }{ \norm{\n^B} } \\
+%
+\pfrac{\ehat}{\xms} &= (\I - \ehat\ehat^T)
+   \frac{ q^e_m \Is }{ \norm{\e} }
+\end{align}
+
+\newcommand{\rjust}{\twocolumnonly{\notag \\&\quad\quad\quad\quad\quad\quad\quad}}
+\begin{align}
+\pfractwo{\nhat^A}{\xms}{\xnt} \twocolbreak
+=&
+- \left(
+     \pfrac{\nhat^A}{\xnt} (\nhat^A)^T +
+     \nhat^A \left( \pfrac{\nhat^A}{\xnt} \right)^T
+  \right) \frac{S_s(\q^A_m)}{\norm{\n^A}}     \notag \\& +
+  \frac{\I - \nhat^A(\nhat^A)^T}{\norm{\n^A}^2}
+  \bigg(
+     \norm{\n^A} S_s\left( \pfrac{\q^A_m}{\xnt} \right) \rjust -
+     \left( S_t(\q^A_n) \cdot \nhat^A \right) S_s(\q^A_m)
+  \bigg) \twocolbreak
+\end{align}
+\begin{align}
+\pfractwo{\nhat^B}{\xms}{\xnt} \twocolbreak
+=&
+- \left(
+     \pfrac{\nhat^B}{\xnt} (\nhat^B)^T +
+     \nhat^B \left( \pfrac{\nhat^B}{\xnt} \right)^T
+  \right) \frac{S_s(\q^B_m)}{\norm{\n^B}}     \notag \\& +
+  \frac{\I - \nhat^B(\nhat^B)^T}{\norm{\n^B}^2}
+  \bigg(
+     \norm{\n^B} S_s\left( \pfrac{\q^B_m}{\xnt} \right) \rjust -
+     \left( S_t(\q^B_n) \cdot \nhat^B \right) S_s(\q^B_m)
+  \bigg) \twocolbreak
+\end{align}
+\begin{align}
+\pfractwo{\ehat}{\xms}{\xnt} \twocolbreak
+=&
+- \left(
+     \pfrac{\ehat}{\xnt} \ehat^T +
+     \ehat \left( \pfrac{\ehat}{\xnt} \right)^T
+  \right) \frac{S_s(q^e_m)}{\norm{\e}} \twocolbreakal-
+  \frac{\I - \ehat\ehat^T}{\norm{\e}^2}
+     q^e_m q^e_n \ehat_t \Is
+\end{align}
+
+\end{document}
+

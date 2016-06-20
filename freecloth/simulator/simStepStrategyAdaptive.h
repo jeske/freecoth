@@ -60,12 +60,18 @@ public:
     // ----- types and enumerations -----
     typedef SimStepStrategy BaseClass;
 
+    //! For MaxTimestep
+    enum {
+        TIMESTEP_UNLIMITED = 0
+    };
+
     // ----- member functions -----
 
     //! Frame rate is number of frames per second
     SimStepStrategyAdaptive(
         const RCShdPtr<Simulator>& simulator,
-        UInt32 frameRate
+        UInt32 frameRate,
+        BaTime::Duration maxTimestep = TIMESTEP_UNLIMITED
     );
 
     virtual void rewind();
@@ -78,7 +84,9 @@ public:
     virtual bool stepSucceeded() const;
 
     void setFrameRate( UInt32 );
+    void setMaxTimestep( BaTime::Duration );
     UInt32 getFrameRate() const;
+    BaTime::Duration getMaxTimestep() const;
 
 private:
     // ----- member functions -----
@@ -98,6 +106,7 @@ private:
     UInt32 _frame;
     //! Time at end of internal step.
     BaTime::Instant _stepEnd;
+    BaTime::Duration _maxTimestep;
 
     //! Substeps executed within this internal step. Internal step is
     //! cancelled if these exceed maxSubSteps.

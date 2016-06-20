@@ -79,7 +79,7 @@ public:
         const String& key,
         const std::vector<Float>&
     );
-#if HAVE_MEMBER_TEMPLATES
+#ifdef HAVE_MEMBER_TEMPLATES
     template <class T>
     void writeFloats(
         const String& key,
@@ -140,7 +140,7 @@ public:
         std::vector<Float>&,
         const std::vector<Float>& def = std::vector<Float>()
     ) const;
-#if HAVE_MEMBER_TEMPLATES
+#ifdef HAVE_MEMBER_TEMPLATES
     template <class T>
     void readFloats(
         const String& key,
@@ -149,7 +149,7 @@ public:
     ) const;
 #endif
 
-    //! No default to prevent accidental misuse
+    // No default to prevent accidental misuse
     UInt32 readEnum(
         const String& key,
         UInt32 nbEntries,
@@ -166,4 +166,5 @@ public:
 };
 
 FREECLOTH_NAMESPACE_END
+
 #endif
