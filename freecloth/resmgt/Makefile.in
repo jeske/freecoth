@@ -1,0 +1,448 @@
+# Makefile.in generated automatically by automake 1.4-p6 from Makefile.am
+
+# Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+#////////////////////////////////////////////////////////////////////
+# Copyright (c) 2001-2003 David Pritchard <drpritch@alumni.uwaterloo.ca>
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# as published by the Free Software Foundation; either
+# version 2 of the License, or (at your option) any later
+# version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+
+#////////////////////////////////////////////////////////////////////
+# Copyright (c) 2002 David Pritchard <drpritch@alumni.uwaterloo.ca>
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# as published by the Free Software Foundation; either
+# version 2 of the License, or (at your option) any later
+# version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+# Needed for compile before headers have been installed.
+
+
+SHELL = @SHELL@
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+
+DESTDIR =
+
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
+
+top_builddir = ../..
+
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+transform = @program_transform_name@
+
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+host_alias = @host_alias@
+host_triplet = @host@
+AS = @AS@
+CC = @CC@
+CLOTHAPP = @CLOTHAPP@
+CXX = @CXX@
+DLLTOOL = @DLLTOOL@
+ECHO = @ECHO@
+EXEEXT = @EXEEXT@
+GLUI_CFLAGS = @GLUI_CFLAGS@
+GLUI_LIBS = @GLUI_LIBS@
+GL_CFLAGS = @GL_CFLAGS@
+GL_LIBS = @GL_LIBS@
+LIBTOOL = @LIBTOOL@
+LN_S = @LN_S@
+LT_VERSION = @LT_VERSION@
+MAKEINFO = @MAKEINFO@
+OBJDUMP = @OBJDUMP@
+OBJEXT = @OBJEXT@
+PACKAGE = @PACKAGE@
+PLATFORM = @PLATFORM@
+RANLIB = @RANLIB@
+STRIP = @STRIP@
+VERSION = @VERSION@
+debug = @debug@
+have_GL = @have_GL@
+have_GLU = @have_GLU@
+have_GLUI = @have_GLUI@
+have_GLUT = @have_GLUT@
+have_GLX = @have_GLX@
+
+INCLUDES = -I$(top_srcdir)
+DEFS = @DEFS@
+DEFAULT_INCLUDES = 
+
+noinst_LTLIBRARIES = libresmgt.la
+
+libresmgt_la_SOURCES =      rcBase.cpp                          rcProxyShdPtr.cpp                   rcShdPtr.cpp                        resConfigRegistry.cpp               resConfigRegistryFile.cpp           resConfigRegistry$(PLATFORM).cpp
+
+
+myincludedir = $(includedir)/freecloth/resmgt
+myinclude_HEADERS =      package.h                           rcBase.h                            rcProxyShdPtr.h                     rcProxyShdPtr.inline.h              rcShdPtr.h                          rcShdPtr.inline.h                   resConfig.h                         resConfigRegistry.h                 resConfigRegistry.imp.h             resConfigRegistryFile.h             resConfigRegistry$(PLATFORM).h  
+
+
+EXTRA_DIST =      resConfigRegistryUnix.cpp           resConfigRegistryWindows.cpp        resConfigRegistryUnix.h             resConfigRegistryWindows.h
+
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+CONFIG_HEADER = ../../freecloth/base/autoconf.h
+CONFIG_CLEAN_FILES = 
+LTLIBRARIES =  $(noinst_LTLIBRARIES)
+
+CPPFLAGS = @CPPFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+X_CFLAGS = @X_CFLAGS@
+X_LIBS = @X_LIBS@
+X_EXTRA_LIBS = @X_EXTRA_LIBS@
+X_PRE_LIBS = @X_PRE_LIBS@
+libresmgt_la_LDFLAGS = 
+libresmgt_la_LIBADD = 
+libresmgt_la_OBJECTS =  rcBase.lo rcProxyShdPtr.lo rcShdPtr.lo \
+resConfigRegistry.lo resConfigRegistryFile.lo \
+resConfigRegistry$(PLATFORM).lo
+CXXFLAGS = @CXXFLAGS@
+CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+CXXLD = $(CXX)
+CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@
+HEADERS =  $(myinclude_HEADERS)
+
+DIST_COMMON =  Makefile.am Makefile.in
+
+
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+
+TAR = tar
+GZIP_ENV = --best
+SOURCES = $(libresmgt_la_SOURCES)
+OBJECTS = $(libresmgt_la_OBJECTS)
+
+all: all-redirect
+.SUFFIXES:
+.SUFFIXES: .S .c .cpp .lo .o .obj .s
+$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) $(top_srcdir)/Makefile.am.include
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps freecloth/resmgt/Makefile
+
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
+	cd $(top_builddir) \
+	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
+
+
+mostlyclean-noinstLTLIBRARIES:
+
+clean-noinstLTLIBRARIES:
+	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
+
+distclean-noinstLTLIBRARIES:
+
+maintainer-clean-noinstLTLIBRARIES:
+
+.c.o:
+	$(COMPILE) -c $<
+
+# FIXME: We should only use cygpath when building on Windows,
+# and only if it is available.
+.c.obj:
+	$(COMPILE) -c `cygpath -w $<`
+
+.s.o:
+	$(COMPILE) -c $<
+
+.S.o:
+	$(COMPILE) -c $<
+
+mostlyclean-compile:
+	-rm -f *.o core *.core
+	-rm -f *.$(OBJEXT)
+
+clean-compile:
+
+distclean-compile:
+	-rm -f *.tab.c
+
+maintainer-clean-compile:
+
+.c.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+.s.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+.S.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+mostlyclean-libtool:
+	-rm -f *.lo
+
+clean-libtool:
+	-rm -rf .libs _libs
+
+distclean-libtool:
+
+maintainer-clean-libtool:
+
+libresmgt.la: $(libresmgt_la_OBJECTS) $(libresmgt_la_DEPENDENCIES)
+	$(CXXLINK)  $(libresmgt_la_LDFLAGS) $(libresmgt_la_OBJECTS) $(libresmgt_la_LIBADD) $(LIBS)
+.cpp.o:
+	$(CXXCOMPILE) -c $<
+.cpp.obj:
+	$(CXXCOMPILE) -c `cygpath -w $<`
+.cpp.lo:
+	$(LTCXXCOMPILE) -c $<
+
+install-myincludeHEADERS: $(myinclude_HEADERS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(myincludedir)
+	@list='$(myinclude_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d= ; else d="$(srcdir)/"; fi; \
+	  echo " $(INSTALL_DATA) $$d$$p $(DESTDIR)$(myincludedir)/$$p"; \
+	  $(INSTALL_DATA) $$d$$p $(DESTDIR)$(myincludedir)/$$p; \
+	done
+
+uninstall-myincludeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	list='$(myinclude_HEADERS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(myincludedir)/$$p; \
+	done
+
+tags: TAGS
+
+ID: $(HEADERS) $(SOURCES) $(LISP)
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	here=`pwd` && cd $(srcdir) \
+	  && mkid -f$$here/ID $$unique $(LISP)
+
+TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(ETAGS_ARGS)$$unique$(LISP)$$tags" \
+	  || (cd $(srcdir) && etags -o $$here/TAGS $(ETAGS_ARGS) $$tags  $$unique $(LISP))
+
+mostlyclean-tags:
+
+clean-tags:
+
+distclean-tags:
+	-rm -f TAGS ID
+
+maintainer-clean-tags:
+
+distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
+
+subdir = freecloth/resmgt
+
+distdir: $(DISTFILES)
+	@for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  if test -d $$d/$$file; then \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
+	  else \
+	    test -f $(distdir)/$$file \
+	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	    || cp -p $$d/$$file $(distdir)/$$file || :; \
+	  fi; \
+	done
+rcBase.lo rcBase.o : rcBase.cpp rcBase.h package.h \
+	../../freecloth/base/types.h ../../freecloth/base/package.h \
+	../../freecloth/base/config.h ../../freecloth/base/autoconf.h \
+	../../freecloth/base/string ../../freecloth/base/debug.h \
+	../../freecloth/base/iostream
+rcProxyShdPtr.lo rcProxyShdPtr.o : rcProxyShdPtr.cpp rcProxyShdPtr.h \
+	package.h ../../freecloth/base/types.h \
+	../../freecloth/base/package.h ../../freecloth/base/config.h \
+	../../freecloth/base/autoconf.h ../../freecloth/base/string \
+	../../freecloth/base/debug.h ../../freecloth/base/iostream \
+	../../freecloth/base/typeinfo rcProxyShdPtr.inline.h
+rcShdPtr.lo rcShdPtr.o : rcShdPtr.cpp rcShdPtr.h \
+	../../freecloth/base/typeinfo package.h \
+	../../freecloth/base/types.h ../../freecloth/base/package.h \
+	../../freecloth/base/config.h ../../freecloth/base/autoconf.h \
+	../../freecloth/base/string ../../freecloth/base/debug.h \
+	../../freecloth/base/iostream rcShdPtr.inline.h rcBase.h
+resConfigRegistry.lo resConfigRegistry.o : resConfigRegistry.cpp \
+	resConfigRegistry.imp.h resConfigRegistry.h package.h \
+	../../freecloth/base/types.h ../../freecloth/base/package.h \
+	../../freecloth/base/config.h ../../freecloth/base/autoconf.h \
+	../../freecloth/base/string ../../freecloth/base/debug.h \
+	../../freecloth/base/iostream rcBase.h \
+	../../freecloth/base/vector ../../freecloth/base/baTime.h \
+	../../freecloth/base/baTime.inline.h \
+	../../freecloth/base/baMath.h ../../freecloth/base/math.h \
+	../../freecloth/base/baMath.inline.h \
+	../../freecloth/base/baStringUtil.h \
+	../../freecloth/base/stdio.h
+resConfigRegistryFile.lo resConfigRegistryFile.o : \
+	resConfigRegistryFile.cpp resConfigRegistryFile.h package.h \
+	../../freecloth/base/types.h ../../freecloth/base/package.h \
+	../../freecloth/base/config.h ../../freecloth/base/autoconf.h \
+	../../freecloth/base/string ../../freecloth/base/debug.h \
+	../../freecloth/base/iostream resConfigRegistry.h rcBase.h \
+	../../freecloth/base/vector ../../freecloth/base/baTime.h \
+	../../freecloth/base/baTime.inline.h \
+	../../freecloth/base/baMath.h ../../freecloth/base/math.h \
+	../../freecloth/base/baMath.inline.h ../../freecloth/base/map \
+	../../freecloth/base/fstream rcShdPtr.h \
+	../../freecloth/base/typeinfo rcShdPtr.inline.h \
+	../../freecloth/base/baStringUtil.h \
+	../../freecloth/base/stdlib.h
+resConfigRegistryUnix.lo resConfigRegistryUnix.o : \
+	resConfigRegistryUnix.cpp resConfigRegistryUnix.h package.h \
+	../../freecloth/base/types.h ../../freecloth/base/package.h \
+	../../freecloth/base/config.h ../../freecloth/base/autoconf.h \
+	../../freecloth/base/string ../../freecloth/base/debug.h \
+	../../freecloth/base/iostream resConfigRegistry.h rcBase.h \
+	../../freecloth/base/vector ../../freecloth/base/baTime.h \
+	../../freecloth/base/baTime.inline.h \
+	../../freecloth/base/baMath.h ../../freecloth/base/math.h \
+	../../freecloth/base/baMath.inline.h resConfigRegistryFile.h \
+	../../freecloth/base/map ../../freecloth/base/fstream \
+	rcShdPtr.h ../../freecloth/base/typeinfo rcShdPtr.inline.h \
+	../../freecloth/base/baStringUtil.h \
+	../../freecloth/base/stdlib.h
+
+info-am:
+info: info-am
+dvi-am:
+dvi: dvi-am
+check-am: all-am
+check: check-am
+installcheck-am:
+installcheck: installcheck-am
+install-exec-am:
+install-exec: install-exec-am
+
+install-data-am: install-myincludeHEADERS
+install-data: install-data-am
+
+install-am: all-am
+	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
+install: install-am
+uninstall-am: uninstall-myincludeHEADERS
+uninstall: uninstall-am
+all-am: Makefile $(LTLIBRARIES) $(HEADERS)
+all-redirect: all-am
+install-strip:
+	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
+installdirs:
+	$(mkinstalldirs)  $(DESTDIR)$(myincludedir)
+
+
+mostlyclean-generic:
+
+clean-generic:
+
+distclean-generic:
+	-rm -f Makefile $(CONFIG_CLEAN_FILES)
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
+
+maintainer-clean-generic:
+mostlyclean-am:  mostlyclean-noinstLTLIBRARIES mostlyclean-compile \
+		mostlyclean-libtool mostlyclean-tags \
+		mostlyclean-generic
+
+mostlyclean: mostlyclean-am
+
+clean-am:  clean-noinstLTLIBRARIES clean-compile clean-libtool \
+		clean-tags clean-generic mostlyclean-am
+
+clean: clean-am
+
+distclean-am:  distclean-noinstLTLIBRARIES distclean-compile \
+		distclean-libtool distclean-tags distclean-generic \
+		clean-am
+	-rm -f libtool
+
+distclean: distclean-am
+
+maintainer-clean-am:  maintainer-clean-noinstLTLIBRARIES \
+		maintainer-clean-compile maintainer-clean-libtool \
+		maintainer-clean-tags maintainer-clean-generic \
+		distclean-am
+	@echo "This command is intended for maintainers to use;"
+	@echo "it deletes files that may require special tools to rebuild."
+
+maintainer-clean: maintainer-clean-am
+
+.PHONY: mostlyclean-noinstLTLIBRARIES distclean-noinstLTLIBRARIES \
+clean-noinstLTLIBRARIES maintainer-clean-noinstLTLIBRARIES \
+mostlyclean-compile distclean-compile clean-compile \
+maintainer-clean-compile mostlyclean-libtool distclean-libtool \
+clean-libtool maintainer-clean-libtool uninstall-myincludeHEADERS \
+install-myincludeHEADERS tags mostlyclean-tags distclean-tags \
+clean-tags maintainer-clean-tags distdir info-am info dvi-am dvi check \
+check-am installcheck-am installcheck install-exec-am install-exec \
+install-data-am install-data install-am install uninstall-am uninstall \
+all-redirect all-am all installdirs mostlyclean-generic \
+distclean-generic clean-generic maintainer-clean-generic clean \
+mostlyclean distclean maintainer-clean
+
+
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

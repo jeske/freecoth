@@ -1,0 +1,48 @@
+0.7.1  Tue Jun  3 11:01:06 PDT 2003  David Pritchard
+
+- Implemented adaptive timestepping.
+- Demo application: better automation, via command-line parameters, batch mode,
+  and statistics files.
+- Implemented Ascher & Boxerman's paper, improving performance of core
+  algorithm.
+- Optimised force calculation.
+
+
+0.7.0  Wed Apr 23 13:41:41 PDT 2003  David Pritchard
+
+- Migrated away from Boost+uBLAS to custom sparse matrix classes.
+- Fixed final major bugs in simulation algorithm: dC_dt calculation and
+  scale invariance problems.
+- Added Doxygen-based documentation.
+- Added air drag forces.
+- Visuals: added texture filtering, antialiased border.
+- General sourcecode cleanups.
+- Demo application: better interactive behaviour, no more lockups.
+
+
+0.6.0  Fri Sep 20 13:12:25 PDT 2002  David Pritchard
+
+- Third release.
+- Implemented modified conjugate gradient algorithm described by Baraff &
+  Witkin, for a major speed improvement.
+- Switched from dense matrices to sparse matrices, for another big speed
+  improvement, and a big memory improvement.
+- Switched from matrix-of-floats to matrix-of-3x3-matrices, for another big
+  speed improvement.
+- Changed default settings: stretch and shear forces are much stronger.
+- Visuals: added textured cloth, fog. Fixed some lighting bugs.
+
+
+0.5.1  Thu Aug 22 00:02:17 PDT 2002  David Pritchard
+
+- Second release. Migrated from MTL to Boost+uBLAS for main matrix resolution,
+  and from MTL to homegrown matrices for setup of main matrix. Ported to
+  Windows, compiled under Visual C++ 6.0 successfully.
+
+
+0.5.0  Mon May 27 23:08:12 PDT 2002  David Pritchard
+
+- Initial public release. Matrices essentially set up, but matrix solution is
+  not done with preconditioned conjugate gradient method yet. No collision
+  detection, no air drag forces.
+

@@ -1,0 +1,23 @@
+/* freecloth/base/autoconf.h.in.  Generated automatically from configure.in by autoheader 2.13.  */
+
+/* Define if the X Window System is missing or not being used.  */
+#undef X_DISPLAY_MISSING
+
+/* Define if you have the <dlfcn.h> header file.  */
+#undef HAVE_DLFCN_H
+
+/* Name of package */
+#undef PACKAGE
+
+/* Version number of package */
+#undef VERSION
+
+/* define if the compiler implements namespaces */
+#undef HAVE_NAMESPACES
+
+/* define if the compiler supports ISO C++ standard library */
+#undef HAVE_STD
+
+/* define if the compiler supports Standard Template Library */
+#undef HAVE_STL
+

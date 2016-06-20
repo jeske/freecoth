@@ -1,0 +1,18 @@
+Version 0.7.1
+- Implemented adaptive timestepping.
+- New batch mode execution.
+
+Version 0.7.0
+- Fixed final major bugs in simulation algorithm.
+- New: API reference, internals manual.
+- Demo application: better interactive behaviour.
+
+Version 0.6.0
+- Major speed and memory improvements.
+
+Version 0.5.1
+- Ported to Windows using Visual C++ 6.0.
+
+Version 0.5.0
+- Initial release.
+

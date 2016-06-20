@@ -1,0 +1,50 @@
+//////////////////////////////////////////////////////////////////////
+// Copyright (c) 2001-2002 David Pritchard <drpritch@alumni.uwaterloo.ca>
+// 
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public License
+// as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later
+// version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+// 
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+#ifndef freecloth_base_algorithm
+#define freecloth_base_algorithm
+#include <algorithm>
+
+#if COMPILER_MSVC
+
+// Visual C++ doesn't define std::min or std::max, since they conflict
+// with Windows' min/max functions. We disable Windows' min/max functions,
+// and redefine std::min and std::max.
+
+namespace std {
+
+template<class _Ty> inline
+	const _Ty& max(const _Ty& _X, const _Ty& _Y)
+	{return _cpp_max( _X, _Y ); }
+		// TEMPLATE FUNCTION max WITH PRED
+template<class _Ty, class _Pr> inline
+	const _Ty& max(const _Ty& _X, const _Ty& _Y, _Pr _P)
+	{return _cpp_max( _X, _y, _P ); }
+		// TEMPLATE FUNCTION min
+template<class _Ty> inline
+	const _Ty& min(const _Ty& _X, const _Ty& _Y)
+	{return _cpp_min( _X, _Y ); }
+		// TEMPLATE FUNCTION min WITH PRED
+template<class _Ty, class _Pr> inline
+	const _Ty& min(const _Ty& _X, const _Ty& _Y, _Pr _P)
+	{return _cpp_min( _X, _Y, _P ); }
+
+}
+#endif
+
+#endif

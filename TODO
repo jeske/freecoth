@@ -1,0 +1,8 @@
+Developers' TODO list
+=====================
+
+- Implement collision detection
+
+
+- Unix: fix test app to link against so
+- Win32: add DLL build

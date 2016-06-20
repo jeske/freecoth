@@ -1,0 +1,133 @@
+dnl ////////////////////////////////////////////////////////////////////
+dnl Copyright (c) 2002-2003 David Pritchard <drpritch@alumni.uwaterloo.ca>
+dnl 
+dnl This program is free software; you can redistribute it and/or
+dnl modify it under the terms of the GNU Lesser General Public License
+dnl as published by the Free Software Foundation; either
+dnl version 2 of the License, or (at your option) any later
+dnl version.
+dnl 
+dnl This program is distributed in the hope that it will be useful,
+dnl but WITHOUT ANY WARRANTY; without even the implied warranty of
+dnl MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+dnl GNU Lesser General Public License for more details.
+dnl 
+dnl You should have received a copy of the GNU Lesser General Public License
+dnl along with this program; if not, write to the Free Software
+dnl Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+
+dnl Process this file with autoconf to produce a configure script.
+
+
+AC_INIT(freecloth/simulator/simSimulator.h)
+
+AM_CONFIG_HEADER(freecloth/base/autoconf.h)
+
+dnl ////////////////////////////////////////////////////////////////////
+dnl VERSION INFO
+dnl Release version.
+VERSION=0.7.1
+dnl Libtool version. Note that this is *in addition to* release
+dnl versioning. Until I hit 1.0, library binaries will include the
+dnl release version in the filename, and the binary interface of the
+dnl library will change freely from release to release.
+dnl Once I hit 1.0, the binary interface will be mostly frozen, and
+dnl the libtool versioning will be used to specify when changes to
+dnl the binary interface occur.
+LT_VERSION_CURRENT=0
+LT_VERSION_REVISION=0
+LT_VERSION_AGE=0
+LT_VERSION=$LT_VERSION_CURRENT:$LT_VERSION_REVISION:$LT_VERSION_AGE
+AC_SUBST(VERSION)
+AC_SUBST(LT_VERSION)
+
+AM_INIT_AUTOMAKE(freecloth, $VERSION)
+
+AM_ACLOCAL_INCLUDE(m4)
+
+INIT_CFLAGS="$CFLAGS"
+INIT_LDFLAGS="$LDFLAGS"
+
+AC_PROG_CC
+AC_PROG_CXX
+AC_PROG_LIBTOOL
+AC_PROG_INSTALL
+
+dnl deprecated, but needed for automake 1.4 vanilla
+AM_PROG_LIBTOOL
+
+AC_LANG_CPLUSPLUS
+
+dnl ////////////////////////////////////////////////////////////////////
+dnl Setup debug mode
+dnl
+dnl Goal here is mostly to get rid of -O2 -g, which locks up gcc in
+dnl simSimulator.cpp
+AC_MSG_CHECKING(for compilation debug mode)
+DEBUG=no
+AC_ARG_ENABLE(debug,
+  [--enable-debug         enable debugging options for compilation],
+  DEBUG=yes,DEBUG=no)
+AC_SUBST(debug)
+AC_MSG_RESULT($DEBUG)
+if test "x$DEBUG" = "xyes" ; then
+  if test ".$ac_cv_prog_gcc" = ".yes"; then
+    CFLAGS="-Wall -g"
+    LDFLAGS="-g"
+  else
+    CFLAGS="-g"
+    LDFLAGS="-g"
+  fi
+else
+  if test ".$ac_cv_prog_gcc" = ".yes"; then
+    CFLAGS="-O2 -DNDEBUG"
+    LDFLAGS="-O2 -DNDEBUG"
+  else
+    CFLAGS=""
+    LDFLAGS=""
+  fi
+fi
+dnl include any user-defined CFLAGS / LDFLAGS
+CFLAGS="$CFLAGS $INIT_CFLAGS"
+LDFLAGS="$LDFLAGS $INIT_LDFLAGS"
+CXXFLAGS="$CFLAGS"
+
+dnl ////////////////////////////////////////////////////////////////////
+dnl Library tests
+AC_CXX_HAVE_STD
+AC_CXX_HAVE_STL
+MDL_HAVE_OPENGL
+DRP_CHECK_GLUI
+
+dnl ////////////////////////////////////////////////////////////////////
+dnl BUILD SETUP
+PLATFORM=Unix
+AC_SUBST(PLATFORM)
+
+AC_CACHE_CHECK(whether to build cloth test app,drp_cv_clothapp,[
+  if test "$have_GL" = "yes" -a "$have_GLU" = "yes" -a "$have_GLUT" = "yes" -a "$have_GLUI" = "yes" ; then
+    drp_cv_clothapp=yes
+  else
+    drp_cv_clothapp=no
+  fi
+])
+
+if test "x$drp_cv_clothapp" = "xyes" ; then
+  CLOTHAPP="colour gfx clothApp"
+else
+  CLOTHAPP=
+fi
+AC_SUBST(CLOTHAPP)
+
+AC_OUTPUT(                          \
+    Makefile                        \
+    freecloth/Makefile              \
+    freecloth/base/Makefile         \
+    freecloth/resmgt/Makefile       \
+    freecloth/geom/Makefile         \
+    freecloth/colour/Makefile       \
+    freecloth/gfx/Makefile          \
+    freecloth/simulator/Makefile    \
+    freecloth/clothApp/Makefile     \
+)

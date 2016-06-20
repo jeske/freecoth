@@ -1,0 +1,526 @@
+# Makefile.in generated automatically by automake 1.4-p6 from Makefile.am
+
+# Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+#////////////////////////////////////////////////////////////////////
+# Copyright (c) 2002-2003 David Pritchard <drpritch@alumni.uwaterloo.ca>
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# as published by the Free Software Foundation; either
+# version 2 of the License, or (at your option) any later
+# version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+
+#////////////////////////////////////////////////////////////////////
+# Copyright (c) 2002 David Pritchard <drpritch@alumni.uwaterloo.ca>
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# as published by the Free Software Foundation; either
+# version 2 of the License, or (at your option) any later
+# version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+# Needed for compile before headers have been installed.
+
+
+SHELL = @SHELL@
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+
+DESTDIR =
+
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
+
+top_builddir = ../..
+
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+transform = @program_transform_name@
+
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+host_alias = @host_alias@
+host_triplet = @host@
+AS = @AS@
+CC = @CC@
+CLOTHAPP = @CLOTHAPP@
+CXX = @CXX@
+DLLTOOL = @DLLTOOL@
+ECHO = @ECHO@
+EXEEXT = @EXEEXT@
+GLUI_CFLAGS = @GLUI_CFLAGS@
+GLUI_LIBS = @GLUI_LIBS@
+GL_CFLAGS = @GL_CFLAGS@
+GL_LIBS = @GL_LIBS@
+LIBTOOL = @LIBTOOL@
+LN_S = @LN_S@
+LT_VERSION = @LT_VERSION@
+MAKEINFO = @MAKEINFO@
+OBJDUMP = @OBJDUMP@
+OBJEXT = @OBJEXT@
+PACKAGE = @PACKAGE@
+PLATFORM = @PLATFORM@
+RANLIB = @RANLIB@
+STRIP = @STRIP@
+VERSION = @VERSION@
+debug = @debug@
+have_GL = @have_GL@
+have_GLU = @have_GLU@
+have_GLUI = @have_GLUI@
+have_GLUT = @have_GLUT@
+have_GLX = @have_GLX@
+
+INCLUDES = -I$(top_srcdir)
+DEFS = @DEFS@
+DEFAULT_INCLUDES = 
+
+lib_LTLIBRARIES = libsimulator.la
+libsimulator_la_LDFLAGS = -version-info @LT_VERSION@ -release @VERSION@
+libsimulator_la_LIBADD = ../base/libbase.la ../resmgt/libresmgt.la ../geom/libgeom.la
+
+libsimulator_la_SOURCES =      simMatrix.cpp                       simSimulator.cpp                    simStepStrategy.cpp                 simStepStrategyAdaptive.cpp         simStepStrategyBasic.cpp            simVector.cpp                    
+
+
+myincludedir = $(includedir)/freecloth/simulator
+myinclude_HEADERS =      package.h                           simMatrix.h                         simMatrix.inline.h                  simSimulator.h                      simStepStrategy.h                   simStepStrategyAdaptive.h           simStepStrategyBasic.h              simVector.h                         simVector.inline.h              
+
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+CONFIG_HEADER = ../../freecloth/base/autoconf.h
+CONFIG_CLEAN_FILES = 
+LTLIBRARIES =  $(lib_LTLIBRARIES)
+
+CPPFLAGS = @CPPFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+X_CFLAGS = @X_CFLAGS@
+X_LIBS = @X_LIBS@
+X_EXTRA_LIBS = @X_EXTRA_LIBS@
+X_PRE_LIBS = @X_PRE_LIBS@
+libsimulator_la_DEPENDENCIES =  ../base/libbase.la \
+../resmgt/libresmgt.la ../geom/libgeom.la
+libsimulator_la_OBJECTS =  simMatrix.lo simSimulator.lo \
+simStepStrategy.lo simStepStrategyAdaptive.lo simStepStrategyBasic.lo \
+simVector.lo
+CXXFLAGS = @CXXFLAGS@
+CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+CXXLD = $(CXX)
+CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@
+HEADERS =  $(myinclude_HEADERS)
+
+DIST_COMMON =  Makefile.am Makefile.in
+
+
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+
+TAR = tar
+GZIP_ENV = --best
+SOURCES = $(libsimulator_la_SOURCES)
+OBJECTS = $(libsimulator_la_OBJECTS)
+
+all: all-redirect
+.SUFFIXES:
+.SUFFIXES: .S .c .cpp .lo .o .obj .s
+$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) $(top_srcdir)/Makefile.am.include
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps freecloth/simulator/Makefile
+
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
+	cd $(top_builddir) \
+	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
+
+
+mostlyclean-libLTLIBRARIES:
+
+clean-libLTLIBRARIES:
+	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
+
+distclean-libLTLIBRARIES:
+
+maintainer-clean-libLTLIBRARIES:
+
+install-libLTLIBRARIES: $(lib_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(libdir)
+	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo "$(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libdir)/$$p"; \
+	    $(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libdir)/$$p; \
+	  else :; fi; \
+	done
+
+uninstall-libLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  $(LIBTOOL)  --mode=uninstall rm -f $(DESTDIR)$(libdir)/$$p; \
+	done
+
+.c.o:
+	$(COMPILE) -c $<
+
+# FIXME: We should only use cygpath when building on Windows,
+# and only if it is available.
+.c.obj:
+	$(COMPILE) -c `cygpath -w $<`
+
+.s.o:
+	$(COMPILE) -c $<
+
+.S.o:
+	$(COMPILE) -c $<
+
+mostlyclean-compile:
+	-rm -f *.o core *.core
+	-rm -f *.$(OBJEXT)
+
+clean-compile:
+
+distclean-compile:
+	-rm -f *.tab.c
+
+maintainer-clean-compile:
+
+.c.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+.s.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+.S.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+mostlyclean-libtool:
+	-rm -f *.lo
+
+clean-libtool:
+	-rm -rf .libs _libs
+
+distclean-libtool:
+
+maintainer-clean-libtool:
+
+libsimulator.la: $(libsimulator_la_OBJECTS) $(libsimulator_la_DEPENDENCIES)
+	$(CXXLINK) -rpath $(libdir) $(libsimulator_la_LDFLAGS) $(libsimulator_la_OBJECTS) $(libsimulator_la_LIBADD) $(LIBS)
+.cpp.o:
+	$(CXXCOMPILE) -c $<
+.cpp.obj:
+	$(CXXCOMPILE) -c `cygpath -w $<`
+.cpp.lo:
+	$(LTCXXCOMPILE) -c $<
+
+install-myincludeHEADERS: $(myinclude_HEADERS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(myincludedir)
+	@list='$(myinclude_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d= ; else d="$(srcdir)/"; fi; \
+	  echo " $(INSTALL_DATA) $$d$$p $(DESTDIR)$(myincludedir)/$$p"; \
+	  $(INSTALL_DATA) $$d$$p $(DESTDIR)$(myincludedir)/$$p; \
+	done
+
+uninstall-myincludeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	list='$(myinclude_HEADERS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(myincludedir)/$$p; \
+	done
+
+tags: TAGS
+
+ID: $(HEADERS) $(SOURCES) $(LISP)
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	here=`pwd` && cd $(srcdir) \
+	  && mkid -f$$here/ID $$unique $(LISP)
+
+TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(ETAGS_ARGS)$$unique$(LISP)$$tags" \
+	  || (cd $(srcdir) && etags -o $$here/TAGS $(ETAGS_ARGS) $$tags  $$unique $(LISP))
+
+mostlyclean-tags:
+
+clean-tags:
+
+distclean-tags:
+	-rm -f TAGS ID
+
+maintainer-clean-tags:
+
+distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
+
+subdir = freecloth/simulator
+
+distdir: $(DISTFILES)
+	@for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  if test -d $$d/$$file; then \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
+	  else \
+	    test -f $(distdir)/$$file \
+	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	    || cp -p $$d/$$file $(distdir)/$$file || :; \
+	  fi; \
+	done
+simMatrix.lo simMatrix.o : simMatrix.cpp simMatrix.h package.h \
+	../../freecloth/base/types.h ../../freecloth/base/package.h \
+	../../freecloth/base/config.h ../../freecloth/base/autoconf.h \
+	../../freecloth/base/string ../../freecloth/base/debug.h \
+	../../freecloth/base/iostream ../../freecloth/base/baTime.h \
+	../../freecloth/base/baTime.inline.h \
+	../../freecloth/base/baMath.h ../../freecloth/base/math.h \
+	../../freecloth/base/baMath.inline.h \
+	../../freecloth/geom/geMatrix3.h ../../freecloth/geom/package.h \
+	../../freecloth/geom/geMatrix3.inline.h \
+	../../freecloth/geom/geVector.h \
+	../../freecloth/geom/geVector.inline.h \
+	../../freecloth/base/algorithm ../../freecloth/geom/gePoint.h \
+	../../freecloth/geom/gePoint.inline.h ../../freecloth/base/list \
+	../../freecloth/base/vector simMatrix.inline.h simVector.h \
+	simVector.inline.h
+simSimulator.lo simSimulator.o : simSimulator.cpp simSimulator.h \
+	package.h ../../freecloth/base/types.h \
+	../../freecloth/base/package.h ../../freecloth/base/config.h \
+	../../freecloth/base/autoconf.h ../../freecloth/base/string \
+	../../freecloth/base/debug.h ../../freecloth/base/iostream \
+	../../freecloth/base/baTime.h \
+	../../freecloth/base/baTime.inline.h \
+	../../freecloth/base/baMath.h ../../freecloth/base/math.h \
+	../../freecloth/base/baMath.inline.h simMatrix.h \
+	../../freecloth/geom/geMatrix3.h ../../freecloth/geom/package.h \
+	../../freecloth/geom/geMatrix3.inline.h \
+	../../freecloth/geom/geVector.h \
+	../../freecloth/geom/geVector.inline.h \
+	../../freecloth/base/algorithm ../../freecloth/geom/gePoint.h \
+	../../freecloth/geom/gePoint.inline.h ../../freecloth/base/list \
+	../../freecloth/base/vector simMatrix.inline.h simVector.h \
+	simVector.inline.h ../../freecloth/resmgt/rcShdPtr.h \
+	../../freecloth/base/typeinfo ../../freecloth/resmgt/package.h \
+	../../freecloth/resmgt/rcShdPtr.inline.h \
+	../../freecloth/resmgt/rcBase.h ../../freecloth/geom/geMesh.h \
+	../../freecloth/geom/geMeshTypes.h \
+	../../freecloth/geom/geMesh.inline.h \
+	../../freecloth/geom/geMeshWingedEdge.h \
+	../../freecloth/geom/geMeshWingedEdge.inline.h \
+	../../freecloth/base/fstream ../../freecloth/base/iomanip \
+	../../freecloth/base/baStringUtil.h
+simStepStrategy.lo simStepStrategy.o : simStepStrategy.cpp \
+	simStepStrategy.h package.h ../../freecloth/base/types.h \
+	../../freecloth/base/package.h ../../freecloth/base/config.h \
+	../../freecloth/base/autoconf.h ../../freecloth/base/string \
+	../../freecloth/base/debug.h ../../freecloth/base/iostream \
+	../../freecloth/base/baTime.h \
+	../../freecloth/base/baTime.inline.h \
+	../../freecloth/base/baMath.h ../../freecloth/base/math.h \
+	../../freecloth/base/baMath.inline.h \
+	../../freecloth/resmgt/rcBase.h \
+	../../freecloth/resmgt/package.h \
+	../../freecloth/resmgt/rcShdPtr.h ../../freecloth/base/typeinfo \
+	../../freecloth/resmgt/rcShdPtr.inline.h
+simStepStrategyAdaptive.lo simStepStrategyAdaptive.o : \
+	simStepStrategyAdaptive.cpp simStepStrategyAdaptive.h package.h \
+	../../freecloth/base/types.h ../../freecloth/base/package.h \
+	../../freecloth/base/config.h ../../freecloth/base/autoconf.h \
+	../../freecloth/base/string ../../freecloth/base/debug.h \
+	../../freecloth/base/iostream ../../freecloth/base/baTime.h \
+	../../freecloth/base/baTime.inline.h \
+	../../freecloth/base/baMath.h ../../freecloth/base/math.h \
+	../../freecloth/base/baMath.inline.h simStepStrategy.h \
+	../../freecloth/resmgt/rcBase.h \
+	../../freecloth/resmgt/package.h \
+	../../freecloth/resmgt/rcShdPtr.h ../../freecloth/base/typeinfo \
+	../../freecloth/resmgt/rcShdPtr.inline.h simSimulator.h \
+	simMatrix.h ../../freecloth/geom/geMatrix3.h \
+	../../freecloth/geom/package.h \
+	../../freecloth/geom/geMatrix3.inline.h \
+	../../freecloth/geom/geVector.h \
+	../../freecloth/geom/geVector.inline.h \
+	../../freecloth/base/algorithm ../../freecloth/geom/gePoint.h \
+	../../freecloth/geom/gePoint.inline.h ../../freecloth/base/list \
+	../../freecloth/base/vector simMatrix.inline.h simVector.h \
+	simVector.inline.h ../../freecloth/geom/geMesh.h \
+	../../freecloth/geom/geMeshTypes.h \
+	../../freecloth/geom/geMesh.inline.h \
+	../../freecloth/geom/geMeshWingedEdge.h \
+	../../freecloth/geom/geMeshWingedEdge.inline.h
+simStepStrategyBasic.lo simStepStrategyBasic.o : \
+	simStepStrategyBasic.cpp simStepStrategyBasic.h package.h \
+	../../freecloth/base/types.h ../../freecloth/base/package.h \
+	../../freecloth/base/config.h ../../freecloth/base/autoconf.h \
+	../../freecloth/base/string ../../freecloth/base/debug.h \
+	../../freecloth/base/iostream ../../freecloth/base/baTime.h \
+	../../freecloth/base/baTime.inline.h \
+	../../freecloth/base/baMath.h ../../freecloth/base/math.h \
+	../../freecloth/base/baMath.inline.h simStepStrategy.h \
+	../../freecloth/resmgt/rcBase.h \
+	../../freecloth/resmgt/package.h \
+	../../freecloth/resmgt/rcShdPtr.h ../../freecloth/base/typeinfo \
+	../../freecloth/resmgt/rcShdPtr.inline.h simSimulator.h \
+	simMatrix.h ../../freecloth/geom/geMatrix3.h \
+	../../freecloth/geom/package.h \
+	../../freecloth/geom/geMatrix3.inline.h \
+	../../freecloth/geom/geVector.h \
+	../../freecloth/geom/geVector.inline.h \
+	../../freecloth/base/algorithm ../../freecloth/geom/gePoint.h \
+	../../freecloth/geom/gePoint.inline.h ../../freecloth/base/list \
+	../../freecloth/base/vector simMatrix.inline.h simVector.h \
+	simVector.inline.h ../../freecloth/geom/geMesh.h \
+	../../freecloth/geom/geMeshTypes.h \
+	../../freecloth/geom/geMesh.inline.h \
+	../../freecloth/geom/geMeshWingedEdge.h \
+	../../freecloth/geom/geMeshWingedEdge.inline.h
+simVector.lo simVector.o : simVector.cpp simVector.h package.h \
+	../../freecloth/base/types.h ../../freecloth/base/package.h \
+	../../freecloth/base/config.h ../../freecloth/base/autoconf.h \
+	../../freecloth/base/string ../../freecloth/base/debug.h \
+	../../freecloth/base/iostream ../../freecloth/base/baTime.h \
+	../../freecloth/base/baTime.inline.h \
+	../../freecloth/base/baMath.h ../../freecloth/base/math.h \
+	../../freecloth/base/baMath.inline.h \
+	../../freecloth/geom/geVector.h ../../freecloth/geom/package.h \
+	../../freecloth/geom/geVector.inline.h \
+	../../freecloth/base/algorithm ../../freecloth/base/vector \
+	simVector.inline.h
+
+info-am:
+info: info-am
+dvi-am:
+dvi: dvi-am
+check-am: all-am
+check: check-am
+installcheck-am:
+installcheck: installcheck-am
+install-exec-am: install-libLTLIBRARIES
+install-exec: install-exec-am
+
+install-data-am: install-myincludeHEADERS
+install-data: install-data-am
+
+install-am: all-am
+	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
+install: install-am
+uninstall-am: uninstall-libLTLIBRARIES uninstall-myincludeHEADERS
+uninstall: uninstall-am
+all-am: Makefile $(LTLIBRARIES) $(HEADERS)
+all-redirect: all-am
+install-strip:
+	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
+installdirs:
+	$(mkinstalldirs)  $(DESTDIR)$(libdir) $(DESTDIR)$(myincludedir)
+
+
+mostlyclean-generic:
+
+clean-generic:
+
+distclean-generic:
+	-rm -f Makefile $(CONFIG_CLEAN_FILES)
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
+
+maintainer-clean-generic:
+mostlyclean-am:  mostlyclean-libLTLIBRARIES mostlyclean-compile \
+		mostlyclean-libtool mostlyclean-tags \
+		mostlyclean-generic
+
+mostlyclean: mostlyclean-am
+
+clean-am:  clean-libLTLIBRARIES clean-compile clean-libtool clean-tags \
+		clean-generic mostlyclean-am
+
+clean: clean-am
+
+distclean-am:  distclean-libLTLIBRARIES distclean-compile \
+		distclean-libtool distclean-tags distclean-generic \
+		clean-am
+	-rm -f libtool
+
+distclean: distclean-am
+
+maintainer-clean-am:  maintainer-clean-libLTLIBRARIES \
+		maintainer-clean-compile maintainer-clean-libtool \
+		maintainer-clean-tags maintainer-clean-generic \
+		distclean-am
+	@echo "This command is intended for maintainers to use;"
+	@echo "it deletes files that may require special tools to rebuild."
+
+maintainer-clean: maintainer-clean-am
+
+.PHONY: mostlyclean-libLTLIBRARIES distclean-libLTLIBRARIES \
+clean-libLTLIBRARIES maintainer-clean-libLTLIBRARIES \
+uninstall-libLTLIBRARIES install-libLTLIBRARIES mostlyclean-compile \
+distclean-compile clean-compile maintainer-clean-compile \
+mostlyclean-libtool distclean-libtool clean-libtool \
+maintainer-clean-libtool uninstall-myincludeHEADERS \
+install-myincludeHEADERS tags mostlyclean-tags distclean-tags \
+clean-tags maintainer-clean-tags distdir info-am info dvi-am dvi check \
+check-am installcheck-am installcheck install-exec-am install-exec \
+install-data-am install-data install-am install uninstall-am uninstall \
+all-redirect all-am all installdirs mostlyclean-generic \
+distclean-generic clean-generic maintainer-clean-generic clean \
+mostlyclean distclean maintainer-clean
+
+
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:
